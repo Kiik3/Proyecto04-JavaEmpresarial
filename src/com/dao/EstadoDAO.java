@@ -2,6 +2,7 @@
 package com.dao;
 
 import com.entidades.Estado;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -67,26 +68,28 @@ public class EstadoDAO extends AbstractDAO<Estado>{
     public int impresion(List<Estado> lista) throws SQLException{
         
         int i = 0;
-        System.out.println("Lista de Estados:\n");
-        System.out.println("Id\tEstado\tDescripción");
+        super.out.println("Lista de Estados:\n");
+        super.out.println("Id\tEstado\tDescripcion");
         for(Estado l : lista){
             i++;
-            System.out.print(l.getId()+ "\t");
-            System.out.print(l.getNombre()+ "\t");
-            System.out.println(l.getDescripcion()+ "\t");
+            super.out.print(l.getId()+ "\t");
+            super.out.print(l.getNombre()+ "\t");
+            super.out.println(l.getDescripcion()+ "\t");
         }
         if(i == 0){
-            System.out.println("No se encontraron resultados");
+            super.out.println("No se encontraron resultados");
         }
         return i;
     }
     
     @Override
-    public void ingresoDatosGestion(int opcion, Estado estado, Connection con) throws Exception{
+    public boolean ingresoDatosGestion(int opcion, Estado estado, Connection con) throws Exception{
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\n");
+        boolean flag = false;
         int i;
-        int id;
+        int leerInt;
+        String leer;
         
         switch(opcion){
             case 1:
@@ -95,37 +98,40 @@ public class EstadoDAO extends AbstractDAO<Estado>{
                 break;
             case 2:
                 setConexion(con);
-                System.out.print("Ingresa el id: ");
-                id = scanner.nextInt();
-                impresion(seleccionar(id));
+                super.out.print("Ingresa el id: ");
+                leer = super.in.readLine();
+                leerInt = Integer.parseInt(leer);
+                impresion(seleccionar(leerInt));
                 break;
             case 3:
                 setConexion(con);
-                System.out.print("Ingrese el nombre del estado: ");
-                estado.setNombre(scanner.next());
-                System.out.print("Ingrese la descripción del estado: ");
-                estado.setDescripcion(scanner.next());
+                super.out.print("Ingrese el nombre del estado: ");
+                estado.setNombre(super.in.readLine());
+                super.out.print("Ingrese la descripción del estado: ");
+                estado.setDescripcion(super.in.readLine());
 
                 insertar(estado);
                 
-                System.out.println("\nEstado agregado correctamente!");
+                super.out.println("\nEstado agregado correctamente!");
                 break;
             case 4:
                 setConexion(con);
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    System.out.println("Atención! Los cambios también se verán reflejados en los empleados que tengan asignado el estado");
-                    System.out.print("\nIngrese el id del estado a actualizar: ");
-                    estado.setId(scanner.nextInt());
-                    System.out.print("Ingrese el nuevo nombre del estado: ");
-                    estado.setNombre(scanner.next());
-                    System.out.print("Ingrese la nueva descripción del estado: ");
-                    estado.setDescripcion(scanner.next());
+                    super.out.println("Atencion! Los cambios tambien se veran reflejados en los empleados que tengan asignado el estado");
+                    super.out.print("\nIngrese el id del estado a actualizar: ");
+                    leer = super.in.readLine();
+                    leerInt = Integer.parseInt(leer);
+                    estado.setId(leerInt);
+                    super.out.print("Ingrese el nuevo nombre del estado: ");
+                    estado.setNombre(super.in.readLine());
+                    super.out.print("Ingrese la nueva descripcion del estado: ");
+                    estado.setDescripcion(super.in.readLine());
 
                     actualizar(estado);
 
-                    System.out.println("\nEstado actualizado correctamente!");
+                    super.out.println("\nEstado actualizado correctamente!");
                 }
                 else{
                     estado.setId(0);
@@ -138,22 +144,31 @@ public class EstadoDAO extends AbstractDAO<Estado>{
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    System.out.print("Ingresa el id: ");
-                    id = scanner.nextInt();
+                    super.out.print("Ingresa el id: ");
+                    leer = super.in.readLine();
+                    leerInt = Integer.parseInt(leer);
 
                     try {
-                        eliminar(id);
-                        System.out.println("\nEstado eliminado correctamente!");
+                        eliminar(leerInt);
+                        super.out.println("\nEstado eliminado correctamente!");
                     } catch (Exception e) {
-                        System.out.println("No se pudo eliminar el estado debido a que está asignado a un empleado/s");
+                        super.out.println("No se pudo eliminar el estado debido a que esta asignado a un empleado/s");
                     }
                 }
                 else{
-                    id = 0;
-                    eliminar(id);
+                    eliminar(0);
                 }
                 
                 break;
+            default:
+                super.out.println("Ingresa una opcion valida");
+                flag = true;
         }
+        return flag;
+    }
+
+    @Override
+    public boolean ingresoDatosGestion(int opcion, Estado entidad, Connection con, Socket cliente) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

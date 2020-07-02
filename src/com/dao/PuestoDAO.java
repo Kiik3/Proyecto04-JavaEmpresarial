@@ -2,6 +2,7 @@
 package com.dao;
 
 import com.entidades.Puesto;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -75,23 +76,23 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
     public int impresion(List<Puesto> lista) throws SQLException {
         
         int i = 0;
-        System.out.println("Lista de Puestos:\n");
-        System.out.println("Id\tPuesto\tSal mínimo\tSal Máximo\tDepartamento");
+        super.out.println("Lista de Puestos:\n");
+        super.out.println("Id\tPuesto\tSal Minimo\tSal Maximo\tDepartamento");
         for(Puesto l : lista){
             i++;
-            System.out.print(l.getId() + "\t");
-            System.out.print(l.getNombre()+ "\t");
-            System.out.print(l.getSalarioMinimo()+ "\t");
-            System.out.print(l.getSalarioMaximo()+ "\t");
+            super.out.print(l.getId() + "\t");
+            super.out.print(l.getNombre()+ "\t");
+            super.out.print(l.getSalarioMinimo()+ "\t");
+            super.out.print(l.getSalarioMaximo()+ "\t");
             
             DepartamentoDAO departamentoDAO = new DepartamentoDAO();
             departamentoDAO.setConexion(super.getConexion());
             try {
                 if(l.getIdDepartamento() == 0){
-                    System.out.println("Ninguno");
+                    super.out.println("Ninguno");
                 }
                 else{
-                    System.out.println(departamentoDAO.seleccionar(l.getIdDepartamento()).get(0).getNombre());
+                    super.out.println(departamentoDAO.seleccionar(l.getIdDepartamento()).get(0).getNombre());
                 }
                 
             } catch (Exception ex) {
@@ -99,19 +100,22 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
             }
         }
         if(i == 0){
-            System.out.println("No se encontraron resultados");
+            super.out.println("No se encontraron resultados");
         }
         return i;
     }
     
     @Override
-    public void ingresoDatosGestion(int opcion, Puesto puesto, Connection con) throws Exception{
+    public boolean ingresoDatosGestion(int opcion, Puesto puesto, Connection con, Socket cliente) throws Exception{
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\n");
         
         DepartamentoDAO departamentoDAO = new DepartamentoDAO();
+        boolean flag = false;
         int i;
-        int id;
+        int leerInt;
+        double leerDouble;
+        String leer;
         
         switch(opcion){
             case 1:
@@ -120,56 +124,73 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                 break;
             case 2:
                 setConexion(con);
-                System.out.print("Ingresa el id: ");
-                id = scanner.nextInt();
-                impresion(seleccionar(id));
+                super.out.print("Ingresa el id: ");
+                leer = super.in.readLine();
+                leerInt = Integer.parseInt(leer);
+                impresion(seleccionar(leerInt));
                 break;
             case 3:
                 setConexion(con);
-                System.out.print("Ingrese el nombre del puesto: ");
-                puesto.setNombre(scanner.next());
-                System.out.print("Ingrese el salario mínimo: ");
-                puesto.setSalarioMinimo(scanner.nextDouble());
-                System.out.print("Ingrese el salario máximo: ");
-                puesto.setSalarioMaximo(scanner.nextDouble());
+                super.out.print("Ingrese el nombre del puesto: ");
+                puesto.setNombre(super.in.readLine());
+                super.out.print("Ingrese el salario minimo: ");
+                leer = super.in.readLine();
+                leerDouble = Double.parseDouble(leer);
+                puesto.setSalarioMinimo(leerDouble);
+                super.out.print("Ingrese el salario maximo: ");
+                leer = super.in.readLine();
+                leerDouble = Double.parseDouble(leer);
+                puesto.setSalarioMaximo(leerDouble);
                 
                 departamentoDAO = new DepartamentoDAO();
+                departamentoDAO.setCliente(cliente);
                 departamentoDAO.setConexion(super.getConexion());
                 departamentoDAO.impresion(departamentoDAO.seleccionar());
                 
-                System.out.print("Ingrese el id del departamento: ");
-                puesto.setIdDepartamento(scanner.nextInt());
+                super.out.print("Ingrese el id del departamento: ");
+                leer = super.in.readLine();
+                leerInt = Integer.parseInt(leer);
+                puesto.setIdDepartamento(leerInt);
                 
                 setConexion(con);
                 insertar(puesto);
                 
-                System.out.println("\nPuesto agregado correctamente!");
+                super.out.println("\nPuesto agregado correctamente!");
                 break;
             case 4:
                 setConexion(con);
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    System.out.print("\nIngrese el id del puesto a actualizar: ");
-                    puesto.setId(scanner.nextInt());
-                    System.out.print("Ingrese el nuevo nombre del puesto: ");
-                    puesto.setNombre(scanner.next());
-                    System.out.print("Ingrese el nuevo salario mínimo: ");
-                    puesto.setSalarioMinimo(scanner.nextDouble());
-                    System.out.print("Ingrese el nuevo salario máximo: ");
-                    puesto.setSalarioMaximo(scanner.nextDouble());
+                    super.out.print("\nIngrese el id del puesto a actualizar: ");
+                    leer = super.in.readLine();
+                    leerInt = Integer.parseInt(leer);
+                    puesto.setId(leerInt);
+                    super.out.print("Ingrese el nuevo nombre del puesto: ");
+                    puesto.setNombre(super.in.readLine());
+                    super.out.print("Ingrese el nuevo salario minimo: ");
+                    leer = super.in.readLine();
+                    leerDouble = Double.parseDouble(leer);
+                    puesto.setSalarioMinimo(leerDouble);
+                    super.out.print("Ingrese el nuevo salario maximo: ");
+                    leer = super.in.readLine();
+                    leerDouble = Double.parseDouble(leer);
+                    puesto.setSalarioMaximo(leerDouble);
 
                     departamentoDAO = new DepartamentoDAO();
+                    departamentoDAO.setCliente(cliente);
                     departamentoDAO.setConexion(super.getConexion());
                     departamentoDAO.impresion(departamentoDAO.seleccionar());
 
-                    System.out.print("Ingrese el id del departamento: ");
-                    puesto.setIdDepartamento(scanner.nextInt());
+                    super.out.print("Ingrese el id del departamento: ");
+                    leer = super.in.readLine();
+                    leerInt = Integer.parseInt(leer);
+                    puesto.setIdDepartamento(leerInt);
 
                     setConexion(con);
                     actualizar(puesto);
 
-                    System.out.println("\nPuesto actualizado correctamente!");
+                    super.out.println("\nPuesto actualizado correctamente!");
                 }
                 else{
                     puesto.setId(0);
@@ -182,18 +203,27 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    System.out.print("Ingresa el id: ");
-                    id = scanner.nextInt();
-                    eliminar(id);
+                    super.out.print("Ingresa el id: ");
+                    leer = super.in.readLine();
+                    leerInt = Integer.parseInt(leer);
+                    eliminar(leerInt);
 
-                    System.out.println("\nPuesto eliminado correctamente!");
+                    super.out.println("\nPuesto eliminado correctamente!");
                 }
                 else{
-                    id = 0;
-                    eliminar(id);
+                    eliminar(0);
                 }
                 
                 break;
+            default:
+                super.out.println("Ingresa una opcion valida");
+                flag = true;
         }
+        return flag;
+    }
+
+    @Override
+    public boolean ingresoDatosGestion(int opcion, Puesto entidad, Connection con) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

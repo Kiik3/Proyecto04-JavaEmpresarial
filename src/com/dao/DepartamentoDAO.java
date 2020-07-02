@@ -2,6 +2,7 @@
 package com.dao;
 
 import com.entidades.Departamento;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -64,26 +65,28 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
     public int impresion(List<Departamento> lista) throws SQLException{
         
         int i = 0;
-        System.out.println("Lista de Departamentos:\n");
-        System.out.println("Id\tDepartamento");
+        super.out.println("Lista de Departamentos:\n");
+        super.out.println("Id\tDepartamento");
         for(Departamento l : lista){
             i++;
-            System.out.print(l.getId()+ "\t");
-            System.out.println(l.getNombre()+ "\t");
+            super.out.print(l.getId()+ "\t");
+            super.out.println(l.getNombre()+ "\t");
         }
         if(i == 0){
-            System.out.println("No se encontraron resultados");
+            super.out.println("No se encontraron resultados");
         }
         
         return i;
     }
     
     @Override
-    public void ingresoDatosGestion(int opcion, Departamento departamento, Connection con) throws Exception{
+    public boolean ingresoDatosGestion(int opcion, Departamento departamento, Connection con) throws Exception{
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\n");
+        boolean flag = false;
         int i;
         int id;
+        String leerId;
         
         switch(opcion){
             case 1:
@@ -92,32 +95,36 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
                 break;
             case 2:
                 setConexion(con);
-                System.out.print("Ingresa el id: ");
-                id = scanner.nextInt();
+                super.out.print("Ingresa el id: ");
+                leerId = super.in.readLine();
+                id = Integer.parseInt(leerId);
                 impresion(seleccionar(id));
                 break;
             case 3:
                 setConexion(con);
-                System.out.print("Ingrese el nombre del departamento: ");
-                departamento.setNombre(scanner.next());
+                super.out.print("Ingrese el nombre del departamento: ");
+                departamento.setNombre(super.in.readLine());
 
                 insertar(departamento);
                 
-                System.out.println("\nDepartamento agregado correctamente!");
+                super.out.println("\nDepartamento agregado correctamente!");
                 break;
             case 4:
                 setConexion(con);
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    System.out.println("Atención! Los cambios también se verán reflejados en los puestos pertenecientes al departamento");
-                    System.out.print("\nIngrese el id del departamento a actualizar: ");
-                    departamento.setId(scanner.nextInt());
-                    System.out.print("Ingrese el nuevo nombre del departamento: ");
-                    departamento.setNombre(scanner.next());
+                    super.out.println("Atencion! Los cambios tambien se veran reflejados en los puestos pertenecientes al departamento");
+                    super.out.print("\nIngrese el id del departamento a actualizar: ");
+                    leerId = super.in.readLine();
+                    id = Integer.parseInt(leerId);
+                    departamento.setId(id);
+                    
+                    super.out.print("Ingrese el nuevo nombre del departamento: ");
+                    departamento.setNombre(super.in.readLine());
                     actualizar(departamento);
                     
-                    System.out.println("\nDepartamento actualizado correctamente!");
+                    super.out.println("\nDepartamento actualizado correctamente!");
                 }
                 else{
                     departamento.setId(0);
@@ -130,19 +137,28 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    System.out.println("Atención! Los puestos pertenecientes al departamento también se eliminarán");
-                    System.out.print("Ingresa el id: ");
-                    id = scanner.nextInt();
+                    super.out.println("Atencion! Los puestos pertenecientes al departamento tambien se eliminaran");
+                    super.out.print("Ingresa el id: ");
+                    leerId = super.in.readLine();
+                    id = Integer.parseInt(leerId);
                     eliminar(id);
                     
-                    System.out.println("\nDepartamento eliminado correctamente!");
+                    super.out.println("\nDepartamento eliminado correctamente!");
                 }
                 else{
                     id = 0;
                     eliminar(id);
-                }
-                
+                } 
                 break;
+            default:
+                super.out.println("Ingresa una opcion valida");
+                flag = true;
         }
+        return flag;
+    }
+
+    @Override
+    public boolean ingresoDatosGestion(int opcion, Departamento entidad, Connection con, Socket cliente) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

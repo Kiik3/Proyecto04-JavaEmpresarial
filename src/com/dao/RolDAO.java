@@ -2,14 +2,13 @@
 package com.dao;
 
 import com.entidades.Rol;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -66,25 +65,27 @@ public class RolDAO extends AbstractDAO<Rol>{
     public int impresion(List<Rol> lista) throws SQLException{
         
         int i = 0;
-        System.out.println("Lista de Roles:\n");
-        System.out.println("Id\tRol");
+        super.out.println("Lista de Roles:\n");
+        super.out.println("Id\tRol");
         for(Rol l : lista){
             i++;
-            System.out.print(l.getId()+ "\t");
-            System.out.println(l.getNombre()+ "\t");
+            super.out.print(l.getId()+ "\t");
+            super.out.println(l.getNombre()+ "\t");
         }
         if(i == 0){
-            System.out.println("No se encontraron resultados");
+            super.out.println("No se encontraron resultados");
         }
         return i;
     }
     
     @Override
-    public void ingresoDatosGestion(int opcion, Rol rol, Connection con) throws Exception{
+    public boolean ingresoDatosGestion(int opcion, Rol rol, Connection con) throws Exception{
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\n");
+        boolean flag = false;
         int i;
-        int id;
+        int leerInt;
+        String leer;
         
         switch(opcion){
             case 1:
@@ -93,33 +94,36 @@ public class RolDAO extends AbstractDAO<Rol>{
                 break;
             case 2:
                 setConexion(con);
-                System.out.print("Ingresa el id: ");
-                id = scanner.nextInt();
-                impresion(seleccionar(id));
+                super.out.print("Ingresa el id: ");
+                leer = super.in.readLine();
+                leerInt = Integer.parseInt(leer);
+                impresion(seleccionar(leerInt));
                 break;
             case 3:
                 setConexion(con);
-                System.out.print("Ingrese el nombre del rol: ");
-                rol.setNombre(scanner.next());
+                super.out.print("Ingrese el nombre del rol: ");
+                rol.setNombre(super.in.readLine());
 
                 insertar(rol);
                 
-                System.out.println("\nRol agregado correctamente!");
+                super.out.println("\nRol agregado correctamente!");
                 break;
             case 4:
                 setConexion(con);
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    System.out.println("Atención! Los cambios también se verán reflejados en los usuarios que hagan uso del rol que se actualizará");
-                    System.out.print("\nIngrese el id del rol a actualizar: ");
-                    rol.setId(scanner.nextInt());
-                    System.out.print("Ingrese el nuevo nombre del rol: ");
-                    rol.setNombre(scanner.next());
+                    super.out.println("Atencion! Los cambios tambien se veran reflejados en los usuarios que hagan uso del rol que se actualizara");
+                    super.out.print("\nIngrese el id del rol a actualizar: ");
+                    leer = super.in.readLine();
+                    leerInt = Integer.parseInt(leer);
+                    rol.setId(leerInt);
+                    super.out.print("Ingrese el nuevo nombre del rol: ");
+                    rol.setNombre(super.in.readLine());
 
                     actualizar(rol);
 
-                    System.out.println("\nRol actualizado correctamente!");
+                    super.out.println("\nRol actualizado correctamente!");
                 }
                 else{
                     rol.setId(0);
@@ -132,22 +136,31 @@ public class RolDAO extends AbstractDAO<Rol>{
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    System.out.print("Ingresa el id: ");
-                    id = scanner.nextInt();
+                    super.out.print("Ingresa el id: ");
+                    leer = super.in.readLine();
+                    leerInt = Integer.parseInt(leer);
 
                     try {
-                        eliminar(id);
-                        System.out.println("\nRol eliminado correctamente!");
+                        eliminar(leerInt);
+                        super.out.println("\nRol eliminado correctamente!");
                     } catch (Exception e) {
-                        System.out.println("No se pudo eliminar el rol debido a que está asignado a un usuario/s");
+                        super.out.println("No se pudo eliminar el rol debido a que esta asignado a un usuario/s");
                     }
                 }
                 else{
-                    id = 0;
-                    eliminar(id);
+                    eliminar(0);
                 }
                 
                 break;
+            default:
+                super.out.println("Ingresa una opcion valida");
+                flag = true;
         }
+        return flag;
+    }
+    
+    @Override
+    public boolean ingresoDatosGestion(int opcion, Rol rol, Connection con, Socket cliente) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

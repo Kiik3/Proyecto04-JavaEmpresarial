@@ -2,6 +2,7 @@
 package com.dao;
 
 import com.entidades.Usuario;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -75,23 +76,23 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
     public int impresion(List<Usuario> lista) throws SQLException {
         
         int i = 0;
-        System.out.println("Lista de Usuarios:\n");
-        System.out.println("Id\tNombre\tContraseña\tCorreo\tRol");
+        super.out.println("Lista de Usuarios:\n");
+        super.out.println("Id\tNombre\tContraseña\tCorreo\tRol");
         for(Usuario l : lista){
             i++;
-            System.out.print(l.getId() + "\t");
-            System.out.print(l.getNombre()+ "\t");
-            System.out.print(l.getContraseña()+ "\t");
-            System.out.print(l.getCorreo()+ "\t");
+            super.out.print(l.getId() + "\t");
+            super.out.print(l.getNombre()+ "\t");
+            super.out.print(l.getContraseña()+ "\t");
+            super.out.print(l.getCorreo()+ "\t");
             
             RolDAO rolDAO = new RolDAO();
             rolDAO.setConexion(super.getConexion());
             try {
                 if(l.getIdRol() == 0){
-                    System.out.println("Ninguno");
+                    super.out.println("Ninguno");
                 }
                 else{
-                    System.out.println(rolDAO.seleccionar(l.getIdRol()).get(0).getNombre());
+                    super.out.println(rolDAO.seleccionar(l.getIdRol()).get(0).getNombre());
                 }
                 
             } catch (Exception ex) {
@@ -99,7 +100,7 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
             }
         }
         if(i == 0){
-            System.out.println("No se encontraron resultados");
+            super.out.println("No se encontraron resultados");
         }
         
 //        System.out.println("Lista de Usuarios:\n");
@@ -129,13 +130,15 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
 //    }
     
     @Override
-    public void ingresoDatosGestion(int opcion, Usuario usuario, Connection con) throws Exception{
+    public boolean ingresoDatosGestion(int opcion, Usuario usuario, Connection con, Socket cliente) throws Exception{
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\n");
         
         RolDAO rolDAO = new RolDAO();
+        boolean flag = false;
         int i;
-        int id;
+        int leerInt;
+        String leer;
         
         switch(opcion){
             case 1:
@@ -144,56 +147,65 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                 break;
             case 2:
                 setConexion(con);
-                System.out.print("Ingresa el id: ");
-                id = scanner.nextInt();
-                impresion(seleccionar(id));
+                super.out.print("Ingresa el id: ");
+                leer = super.in.readLine();
+                leerInt = Integer.parseInt(leer);
+                impresion(seleccionar(leerInt));
                 break;
             case 3:
                 setConexion(con);
-                System.out.print("Ingrese el nombre de usuario: ");
-                usuario.setNombre(scanner.next());
-                System.out.print("Ingrese la contraseña: ");
-                usuario.setContraseña(scanner.next());
-                System.out.print("Ingrese el correo electrónico: ");
-                usuario.setCorreo(scanner.next());
+                super.out.print("Ingrese el nombre de usuario: ");
+                usuario.setNombre(super.in.readLine());
+                super.out.print("Ingrese la contrasena: ");
+                usuario.setContraseña(super.in.readLine());
+                super.out.print("Ingrese el correo electronico: ");
+                usuario.setCorreo(super.in.readLine());
                 
                 rolDAO = new RolDAO();
+                rolDAO.setCliente(cliente);
                 rolDAO.setConexion(super.getConexion());
                 rolDAO.impresion(rolDAO.seleccionar());
                 
-                System.out.print("Ingrese el id del rol: ");
-                usuario.setIdRol(scanner.nextInt());
+                super.out.print("Ingrese el id del rol: ");
+                leer = super.in.readLine();
+                leerInt = Integer.parseInt(leer);
+                usuario.setIdRol(leerInt);
                 
                 setConexion(con);
                 insertar(usuario);
                 
-                System.out.println("\nUsaurio agregado correctamente!");
+                super.out.println("\nUsaurio agregado correctamente!");
                 break;
             case 4:
                 setConexion(con);
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    System.out.print("\nIngrese el id del usuario a actualizar: ");
-                    usuario.setId(scanner.nextInt());
-                    System.out.print("Ingrese el nuevo nombre de usuario: ");
-                    usuario.setNombre(scanner.next());
-                    System.out.print("Ingrese la nueva contraseña: ");
-                    usuario.setContraseña(scanner.next());
-                    System.out.print("Ingrese el nuevo correo electrónico: ");
-                    usuario.setCorreo(scanner.next());
+                    super.out.print("\nIngrese el id del usuario a actualizar: ");
+                    leer = super.in.readLine();
+                    leerInt = Integer.parseInt(leer);
+                    usuario.setId(leerInt);
+                    super.out.print("Ingrese el nuevo nombre de usuario: ");
+                    usuario.setNombre(super.in.readLine());
+                    super.out.print("Ingrese la nueva contrasena: ");
+                    usuario.setContraseña(super.in.readLine());
+                    super.out.print("Ingrese el nuevo correo electronico: ");
+                    usuario.setCorreo(super.in.readLine());
 
                     rolDAO = new RolDAO();
+                    rolDAO.setCliente(cliente);
                     rolDAO.setConexion(super.getConexion());
                     rolDAO.impresion(rolDAO.seleccionar());
 
-                    System.out.print("Ingrese el id del rol: ");
-                    usuario.setIdRol(scanner.nextInt());
+                    super.out.print("Ingrese el id del rol: ");
+                    leer = super.in.readLine();
+                    leerInt = Integer.parseInt(leer);
+                    usuario.setIdRol(leerInt);
 
                     setConexion(con);
                     actualizar(usuario);
 
-                    System.out.println("\nUsaurio actualizado correctamente!");
+                    super.out.println("\nUsaurio actualizado correctamente!");
                 }
                 else{
                     usuario.setId(0);
@@ -206,19 +218,28 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    System.out.print("Ingresa el id: ");
-                    id = scanner.nextInt();
-                    eliminar(id);
+                    super.out.print("Ingresa el id: ");
+                    leer = super.in.readLine();
+                    leerInt = Integer.parseInt(leer);
+                    eliminar(leerInt);
 
-                    System.out.println("\nUsaurio eliminado correctamente!");
+                    super.out.println("\nUsaurio eliminado correctamente!");
                 }
                 else{
-                    id = 0;
-                    eliminar(id);
+                    eliminar(0);
                 }
                 
                 break;
+            default:
+                super.out.println("Ingresa una opcion valida");
+                flag = true;
         }
+        return flag;
+    }
+
+    @Override
+    public boolean ingresoDatosGestion(int opcion, Usuario entidad, Connection con) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

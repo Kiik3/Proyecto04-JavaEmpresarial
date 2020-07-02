@@ -1,6 +1,11 @@
 
 package com.dao;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +27,9 @@ public abstract class AbstractDAO<T> {
     private String selectQuery = "select * from TABLA";
     private String selectIdQuery = "select * from TABLA where CAMPO_ID = ?";
     private Connection con;
+    Socket cliente;
+    protected PrintStream out; 
+    protected BufferedReader in; 
     
     public void setConexion(Connection con){
         this.con = con;
@@ -29,6 +37,11 @@ public abstract class AbstractDAO<T> {
     
     public Connection getConexion(){
         return con;
+    }
+    
+    public void setCliente(Socket cliente) throws IOException{
+        out = new PrintStream(cliente.getOutputStream());
+        in = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
     }
 
     public void insertar(T entidad) throws SQLException, Exception{
@@ -140,6 +153,8 @@ public abstract class AbstractDAO<T> {
        
     protected abstract int impresion(List<T> lista) throws SQLException;
     
-    protected abstract void ingresoDatosGestion(int opcion, T entidad, Connection con) throws Exception;
+    protected abstract boolean ingresoDatosGestion(int opcion, T entidad, Connection con) throws Exception;
+    
+    protected abstract boolean ingresoDatosGestion(int opcion, T entidad, Connection con, Socket cliente) throws Exception;
 
 }
