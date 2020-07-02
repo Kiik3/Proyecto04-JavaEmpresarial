@@ -127,6 +127,7 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
                     super.out.println("\nDepartamento actualizado correctamente!");
                 }
                 else{
+                    super.out.println("\nNo hay departamentos para actualizar!");
                     departamento.setId(0);
                     actualizar(departamento);
                 }
@@ -146,6 +147,7 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
                     super.out.println("\nDepartamento eliminado correctamente!");
                 }
                 else{
+                    super.out.println("\nNo hay departamentos para eliminar!");
                     id = 0;
                     eliminar(id);
                 } 

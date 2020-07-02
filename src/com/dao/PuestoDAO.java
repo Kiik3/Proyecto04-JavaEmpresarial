@@ -114,7 +114,8 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
         boolean flag = false;
         int i;
         int leerInt;
-        double leerDouble;
+        double leerMinimo;
+        double leerMaximo;
         String leer;
         
         switch(opcion){
@@ -135,12 +136,16 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                 puesto.setNombre(super.in.readLine());
                 super.out.print("Ingrese el salario minimo: ");
                 leer = super.in.readLine();
-                leerDouble = Double.parseDouble(leer);
-                puesto.setSalarioMinimo(leerDouble);
-                super.out.print("Ingrese el salario maximo: ");
-                leer = super.in.readLine();
-                leerDouble = Double.parseDouble(leer);
-                puesto.setSalarioMaximo(leerDouble);
+                leerMinimo = Double.parseDouble(leer);
+                puesto.setSalarioMinimo(leerMinimo);
+                do {                    
+                    super.out.print("Ingrese el salario maximo: ");
+                    leer = super.in.readLine();
+                    leerMaximo = Double.parseDouble(leer);
+                    
+                } while (leerMinimo >= leerMaximo);
+ 
+                puesto.setSalarioMaximo(leerMaximo);
                 
                 departamentoDAO = new DepartamentoDAO();
                 departamentoDAO.setCliente(cliente);
@@ -170,12 +175,16 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                     puesto.setNombre(super.in.readLine());
                     super.out.print("Ingrese el nuevo salario minimo: ");
                     leer = super.in.readLine();
-                    leerDouble = Double.parseDouble(leer);
-                    puesto.setSalarioMinimo(leerDouble);
-                    super.out.print("Ingrese el nuevo salario maximo: ");
-                    leer = super.in.readLine();
-                    leerDouble = Double.parseDouble(leer);
-                    puesto.setSalarioMaximo(leerDouble);
+                    leerMinimo = Double.parseDouble(leer);
+                    puesto.setSalarioMinimo(leerMinimo);
+                    do {                    
+                        super.out.print("Ingrese el nuevo salario maximo: ");
+                        leer = super.in.readLine();
+                        leerMaximo = Double.parseDouble(leer);
+                    
+                    } while (leerMinimo >= leerMaximo);
+
+                    puesto.setSalarioMaximo(leerMaximo);
 
                     departamentoDAO = new DepartamentoDAO();
                     departamentoDAO.setCliente(cliente);
@@ -193,6 +202,7 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                     super.out.println("\nPuesto actualizado correctamente!");
                 }
                 else{
+                    super.out.println("\nNo hay puestos para actualizar!");
                     puesto.setId(0);
                     actualizar(puesto);
                 }
@@ -211,6 +221,7 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                     super.out.println("\nPuesto eliminado correctamente!");
                 }
                 else{
+                    super.out.println("\nNo hay puestos para eliminar!");
                     eliminar(0);
                 }
                 

@@ -134,6 +134,7 @@ public class EstadoDAO extends AbstractDAO<Estado>{
                     super.out.println("\nEstado actualizado correctamente!");
                 }
                 else{
+                    super.out.println("\nNo hay estados para actualizar!");
                     estado.setId(0);
                     actualizar(estado);
                 }
@@ -156,6 +157,7 @@ public class EstadoDAO extends AbstractDAO<Estado>{
                     }
                 }
                 else{
+                    super.out.println("\nNo hay estados para eliminar!");
                     eliminar(0);
                 }
                 

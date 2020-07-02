@@ -126,6 +126,7 @@ public class RolDAO extends AbstractDAO<Rol>{
                     super.out.println("\nRol actualizado correctamente!");
                 }
                 else{
+                    super.out.println("\nNo hay roles para eliminar!");
                     rol.setId(0);
                     actualizar(rol);
                 }
@@ -148,6 +149,7 @@ public class RolDAO extends AbstractDAO<Rol>{
                     }
                 }
                 else{
+                    super.out.println("\nNo hay roles para eliminar!");
                     eliminar(0);
                 }
                 

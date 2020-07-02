@@ -3,11 +3,13 @@ package com.conexionSocket;
 
 import com.conexionBD.ConexionBD;
 import com.dao.DepartamentoDAO;
+import com.dao.EmpleadoDAO;
 import com.dao.EstadoDAO;
 import com.dao.PuestoDAO;
 import com.dao.RolDAO;
 import com.dao.UsuarioDAO;
 import com.entidades.Departamento;
+import com.entidades.Empleado;
 import com.entidades.Estado;
 import com.entidades.Puesto;
 import com.entidades.Rol;
@@ -76,7 +78,7 @@ public class Hilo extends Thread{
                         if(!(validacion == null)){
                         out.println("\nBienvenido " + validacion + " " + nombre);
 
-                        out.println("\nSeleccione una opción: ");
+                        out.println("\nSeleccione una opcion: ");
                         if(validacion.equalsIgnoreCase("Administracion")){
 
                             boolean flag = true;
@@ -154,9 +156,72 @@ public class Hilo extends Thread{
                                 flag = regresarMenu(flag);
                             } while (flag);
                         }
+                        
+                        else if(validacion.equalsIgnoreCase("Usuario")){
+                            boolean flag = true;
+                            String o;
+                            do {
+                                out.println("1. Actualizacion de datos de personales del empleado\t 2. Actualizacion de estado de empleado (despido, etc..)");
+                                out.println("3. Contratacion de empleado\t 4. Gestion de Usuarios\t\t 5. Gestion de Roles");                            
+                                try {
+                                    flag = false;
+                                    o = in.readLine();
+                                    opcion = Integer.parseInt(o);
+                                    //System.out.println("\nSeleccione una opción: ");
+                                    Empleado empleado = new Empleado();
+                                    EmpleadoDAO empleadoDAO = new EmpleadoDAO();
+
+                                    switch(opcion){
+                                        case 1:  
+                                            empleadoDAO.setCliente(cliente);
+                                            empleadoDAO.actualizarDatosPersonales(empleado, con.iniciarConexionBD(), cliente);
+
+                                            break;
+                                        case 2:
+                                            empleadoDAO.setCliente(cliente);
+                                            empleadoDAO.actualizarEstadoEmpleado(empleado, con.iniciarConexionBD(), cliente);
+                                            break;
+                                        case 3:
+                                            empleadoDAO.setCliente(cliente);
+                                            empleadoDAO.ingresarEmpleado(empleado, con.iniciarConexionBD(), cliente);
+
+                                            break;
+                                        case 4:
+                                            Usuario usuario = new Usuario();
+                                            UsuarioDAO usuarioDAO = new UsuarioDAO();
+                                            menuGestion();
+
+                                            o = in.readLine();
+                                            opcion = Integer.parseInt(o);
+                                            usuarioDAO.setCliente(cliente);
+                                            flag = usuarioDAO.ingresoDatosGestion(opcion, usuario, con.iniciarConexionBD(), cliente);
+                                            break;
+                                        case 5:
+                                            Rol rol = new Rol();
+                                            RolDAO rolDAO = new RolDAO();
+                                            menuGestion();
+
+                                            o = in.readLine();
+                                            opcion = Integer.parseInt(o);
+                                            rolDAO.setCliente(cliente);
+                                            flag = rolDAO.ingresoDatosGestion(opcion, rol, con.iniciarConexionBD());
+                                            break;
+                                        default:
+                                            out.println("Ingresa una opcion valida");
+                                            flag = true;
+                                    }
+
+                                } catch (Exception e) {
+                                    out.println("Ingresa una opcion valida");
+                                    e.printStackTrace();
+                                    flag = true;
+                                }
+                                flag = regresarMenu(flag);
+                            } while (flag);
+                        }
                     }
                     else{
-                        out.println("Usuario/Contraseña incorrectas, intente nuevamente\n");
+                        out.println("Usuario/Contrasena incorrectas, intente nuevamente\n");
                         flagValidacion = true;
                     }
                     } while (flagValidacion);

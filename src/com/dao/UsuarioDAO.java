@@ -208,6 +208,7 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                     super.out.println("\nUsaurio actualizado correctamente!");
                 }
                 else{
+                    super.out.println("\nNo hay usuarios para actualizar!");
                     usuario.setId(0);
                     actualizar(usuario);
                 }
@@ -226,6 +227,7 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                     super.out.println("\nUsaurio eliminado correctamente!");
                 }
                 else{
+                    super.out.println("\nNo hay usuarios para eliminar!");
                     eliminar(0);
                 }
                 
