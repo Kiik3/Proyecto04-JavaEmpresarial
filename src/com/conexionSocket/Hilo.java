@@ -161,13 +161,14 @@ public class Hilo extends Thread{
                             boolean flag = true;
                             String o;
                             do {
-                                out.println("1. Actualizacion de datos de personales del empleado\t 2. Actualizacion de estado de empleado (despido, etc..)");
-                                out.println("3. Contratacion de empleado\t 4. Gestion de Usuarios\t\t 5. Gestion de Roles");                            
+                                out.println("1. Actualizacion de datos de personales del empleado\n\r2. Actualizacion de estado de empleado (despido, etc..)");
+                                out.println("3. Contratacion de empleado\n\r4. Actualizacion de departamento y puesto del empleado\n\r5. Asignacion de jefatura");
+                                out.println("6. Actualizacion de salario de empleado\n\r7. Visualizacion de pagos generados\n\r8. Generacion de pagos en planilla");
                                 try {
                                     flag = false;
                                     o = in.readLine();
                                     opcion = Integer.parseInt(o);
-                                    //System.out.println("\nSeleccione una opción: ");
+
                                     Empleado empleado = new Empleado();
                                     EmpleadoDAO empleadoDAO = new EmpleadoDAO();
 
@@ -187,24 +188,18 @@ public class Hilo extends Thread{
 
                                             break;
                                         case 4:
-                                            Usuario usuario = new Usuario();
-                                            UsuarioDAO usuarioDAO = new UsuarioDAO();
-                                            menuGestion();
-
-                                            o = in.readLine();
-                                            opcion = Integer.parseInt(o);
-                                            usuarioDAO.setCliente(cliente);
-                                            flag = usuarioDAO.ingresoDatosGestion(opcion, usuario, con.iniciarConexionBD(), cliente);
+                                            empleadoDAO.setCliente(cliente);
+                                            empleadoDAO.actualizarDepartametoEmpleado(empleado, con.iniciarConexionBD(), cliente);
+                                            
                                             break;
                                         case 5:
-                                            Rol rol = new Rol();
-                                            RolDAO rolDAO = new RolDAO();
-                                            menuGestion();
-
-                                            o = in.readLine();
-                                            opcion = Integer.parseInt(o);
-                                            rolDAO.setCliente(cliente);
-                                            flag = rolDAO.ingresoDatosGestion(opcion, rol, con.iniciarConexionBD());
+                                            empleadoDAO.setCliente(cliente);
+                                            empleadoDAO.actualizarJefeEmpleado(empleado, con.iniciarConexionBD(), cliente);
+                                            
+                                            break;
+                                        case 6:
+                                            empleadoDAO.setCliente(cliente);
+                                            empleadoDAO.actualizarSalarioEmpleado(empleado, con.iniciarConexionBD(), cliente);
                                             break;
                                         default:
                                             out.println("Ingresa una opcion valida");

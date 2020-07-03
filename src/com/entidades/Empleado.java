@@ -21,8 +21,9 @@ public class Empleado {
     private int idPuesto;
     private int idDepartamento;
     private int idEstado;
+    private int idJefe;
 
-    public Empleado(int id, String nombre, String apellido, String identificacion, Date fechaNacimiento, Date fechaContrato, int telefono, String correo, double salario, int idPuesto, int idDepartamento, int idEstado) {
+    public Empleado(int id, String nombre, String apellido, String identificacion, Date fechaNacimiento, Date fechaContrato, int telefono, String correo, double salario, int idPuesto, int idDepartamento, int idEstado, int idJefe) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -35,6 +36,7 @@ public class Empleado {
         this.idPuesto = idPuesto;
         this.idDepartamento = idDepartamento;
         this.idEstado = idEstado;
+        this.idJefe = idJefe;
     }
 
     public Empleado() {
@@ -135,5 +137,12 @@ public class Empleado {
     public void setIdEstado(int idEstado) {
         this.idEstado = idEstado;
     }
-    
+
+    public int getIdJefe() {
+        return idJefe;
+    }
+
+    public void setIdJefe(int idJefe) {
+        this.idJefe = idJefe;
+    }
 }

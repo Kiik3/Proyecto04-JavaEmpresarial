@@ -138,7 +138,8 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
                 i = impresion(seleccionar());
                 
                 if(i != 0){
-                    super.out.println("Atencion! Los puestos pertenecientes al departamento tambien se eliminaran");
+                    super.out.println("Atencion! Si hay empleado/s que forman parte del departamento, este no se podra eliminar.");
+                    super.out.println("Si no es el caso, los puestos pertenecientes al departamento tambien se eliminaran ");
                     super.out.print("Ingresa el id: ");
                     leerId = super.in.readLine();
                     id = Integer.parseInt(leerId);

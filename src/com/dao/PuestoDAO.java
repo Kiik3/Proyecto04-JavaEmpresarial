@@ -167,6 +167,7 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                 i = impresion(seleccionar());
                 
                 if(i != 0){
+                    super.out.println("Atencion! Los cambios tambien se veran reflejados en los empleados que ocupen el puesto que se actualizara");
                     super.out.print("\nIngrese el id del puesto a actualizar: ");
                     leer = super.in.readLine();
                     leerInt = Integer.parseInt(leer);
@@ -216,9 +217,13 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                     super.out.print("Ingresa el id: ");
                     leer = super.in.readLine();
                     leerInt = Integer.parseInt(leer);
-                    eliminar(leerInt);
 
-                    super.out.println("\nPuesto eliminado correctamente!");
+                    try {
+                        eliminar(leerInt);
+                        super.out.println("\nPuesto eliminado correctamente!");
+                    } catch (Exception e) {
+                        super.out.println("No se pudo eliminar el puesto debido a que esta asignado a un empleado/s");
+                    }
                 }
                 else{
                     super.out.println("\nNo hay puestos para eliminar!");

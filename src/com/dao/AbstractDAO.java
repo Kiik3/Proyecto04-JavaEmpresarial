@@ -118,6 +118,9 @@ public abstract class AbstractDAO<T> {
         
         return lista;
     }
+//    public List<T> seleccionarForaneo(int id){
+//        
+//    }
     
     public List<T> seleccionar(int id) throws SQLException, Exception{
         List<T> lista = new ArrayList();
