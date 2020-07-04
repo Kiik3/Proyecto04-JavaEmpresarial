@@ -218,7 +218,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
     public List<Empleado> listaJefes(Connection con) throws SQLException{
         List<Empleado> lista = new ArrayList();
         
-        String query = "select * from ADM_EMP_EMPLEADO where EMP_ID_JEFE is null";
+        String query = "select * from ADM_EMP_EMPLEADO where EMP_ID_JEFE is null and EST_ID = 1";
         PreparedStatement pre = con.prepareStatement(query);
         ResultSet rs = pre.executeQuery();
         
@@ -233,7 +233,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
     public List<Empleado> listaNoJefes(Connection con) throws SQLException{
         List<Empleado> lista = new ArrayList();
         
-        String query = "select * from ADM_EMP_EMPLEADO where EMP_ID_JEFE is not null";
+        String query = "select * from ADM_EMP_EMPLEADO where EMP_ID_JEFE is not null and EST_ID = 1";
         PreparedStatement pre = con.prepareStatement(query);
         ResultSet rs = pre.executeQuery();
         
@@ -244,17 +244,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         
         return lista;
     }
-//    @Override
-//    public void mapeoActualizar(PreparedStatement pre, Usuario usuario) throws SQLException{
-//
-//        pre.setString(1, usuario.getNombre());
-//        pre.setString(2, usuario.getContraseña());
-//        pre.setString(3, usuario.getCorreo());
-//        pre.setInt(4, usuario.getIdRol());
-//        pre.setInt(5, usuario.getId());
-//
-//    }
-//    
+    
     @Override
     public List<Empleado> mapeoSeleccionar(ResultSet rs) throws SQLException{
 
@@ -747,114 +737,6 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
             actualizar(empleado);
         }
     }
-//    
-//    @Override
-//    public boolean ingresoDatosGestion(int opcion, Usuario usuario, Connection con, Socket cliente) throws Exception{
-//        Scanner scanner = new Scanner(System.in);
-//        scanner.useDelimiter("\n");
-//        
-//        RolDAO rolDAO = new RolDAO();
-//        boolean flag = false;
-//        int i;
-//        int leerInt;
-//        String leer;
-//        
-//        switch(opcion){
-//            case 1:
-//                setConexion(con);
-//                impresion(seleccionar());
-//                break;
-//            case 2:
-//                setConexion(con);
-//                super.out.print("Ingresa el id: ");
-//                leer = super.in.readLine();
-//                leerInt = Integer.parseInt(leer);
-//                impresion(seleccionar(leerInt));
-//                break;
-//            case 3:
-//                setConexion(con);
-//                super.out.print("Ingrese el nombre de usuario: ");
-//                usuario.setNombre(super.in.readLine());
-//                super.out.print("Ingrese la contrasena: ");
-//                usuario.setContraseña(super.in.readLine());
-//                super.out.print("Ingrese el correo electronico: ");
-//                usuario.setCorreo(super.in.readLine());
-//                
-//                rolDAO = new RolDAO();
-//                rolDAO.setCliente(cliente);
-//                rolDAO.setConexion(super.getConexion());
-//                rolDAO.impresion(rolDAO.seleccionar());
-//                
-//                super.out.print("Ingrese el id del rol: ");
-//                leer = super.in.readLine();
-//                leerInt = Integer.parseInt(leer);
-//                usuario.setIdRol(leerInt);
-//                
-//                setConexion(con);
-//                insertar(usuario);
-//                
-//                super.out.println("\nUsaurio agregado correctamente!");
-//                break;
-//            case 4:
-//                setConexion(con);
-//                i = impresion(seleccionar());
-//                
-//                if(i != 0){
-//                    super.out.print("\nIngrese el id del usuario a actualizar: ");
-//                    leer = super.in.readLine();
-//                    leerInt = Integer.parseInt(leer);
-//                    usuario.setId(leerInt);
-//                    super.out.print("Ingrese el nuevo nombre de usuario: ");
-//                    usuario.setNombre(super.in.readLine());
-//                    super.out.print("Ingrese la nueva contrasena: ");
-//                    usuario.setContraseña(super.in.readLine());
-//                    super.out.print("Ingrese el nuevo correo electronico: ");
-//                    usuario.setCorreo(super.in.readLine());
-//
-//                    rolDAO = new RolDAO();
-//                    rolDAO.setCliente(cliente);
-//                    rolDAO.setConexion(super.getConexion());
-//                    rolDAO.impresion(rolDAO.seleccionar());
-//
-//                    super.out.print("Ingrese el id del rol: ");
-//                    leer = super.in.readLine();
-//                    leerInt = Integer.parseInt(leer);
-//                    usuario.setIdRol(leerInt);
-//
-//                    setConexion(con);
-//                    actualizar(usuario);
-//
-//                    super.out.println("\nUsaurio actualizado correctamente!");
-//                }
-//                else{
-//                    usuario.setId(0);
-//                    actualizar(usuario);
-//                }
-//                
-//                break;
-//            case 5:
-//                setConexion(con);
-//                i = impresion(seleccionar());
-//                
-//                if(i != 0){
-//                    super.out.print("Ingresa el id: ");
-//                    leer = super.in.readLine();
-//                    leerInt = Integer.parseInt(leer);
-//                    eliminar(leerInt);
-//
-//                    super.out.println("\nUsaurio eliminado correctamente!");
-//                }
-//                else{
-//                    eliminar(0);
-//                }
-//                
-//                break;
-//            default:
-//                super.out.println("Ingresa una opcion valida");
-//                flag = true;
-//        }
-//        return flag;
-//    }
 
     @Override
     public boolean ingresoDatosGestion(int opcion, Empleado entidad, Connection con) throws Exception {

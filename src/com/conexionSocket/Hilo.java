@@ -3,18 +3,21 @@ package com.conexionSocket;
 
 import com.conexionBD.ConexionBD;
 import com.dao.DepartamentoDAO;
+import com.dao.DescuentoLeyDAO;
 import com.dao.EmpleadoDAO;
 import com.dao.EstadoDAO;
 import com.dao.PuestoDAO;
 import com.dao.RolDAO;
 import com.dao.UsuarioDAO;
 import com.entidades.Departamento;
+import com.entidades.DescuentoLey;
 import com.entidades.Empleado;
 import com.entidades.Estado;
 import com.entidades.Puesto;
 import com.entidades.Rol;
 import com.entidades.Usuario;
 import com.login.Login;
+import com.planilla.PlanillaDAO;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -85,12 +88,12 @@ public class Hilo extends Thread{
                             String o;
                             do {
                                 out.println("1. Gestion de Departamentos\t 2. Gestion de Estados de empleado\t 3. Gestion de Puestos");
-                                out.println("4. Gestion de Usuarios\t\t 5. Gestion de Roles");                            
+                                out.println("4. Gestion de Usuarios\t\t 5. Gestion de Roles\t\t\t 6. Gestion de Descuentos de ley");
+                                out.println("7. Gestion de Renta");
                                 try {
                                     flag = false;
                                     o = in.readLine();
                                     opcion = Integer.parseInt(o);
-                                    //System.out.println("\nSeleccione una opción: ");
 
                                     switch(opcion){
                                         case 1:
@@ -143,6 +146,26 @@ public class Hilo extends Thread{
                                             rolDAO.setCliente(cliente);
                                             flag = rolDAO.ingresoDatosGestion(opcion, rol, con.iniciarConexionBD());
                                             break;
+                                        case 6:
+                                            DescuentoLey descuentoLey = new DescuentoLey();
+                                            DescuentoLeyDAO descuentoLeyDAO = new DescuentoLeyDAO();
+                                            menuGestion();
+
+                                            o = in.readLine();
+                                            opcion = Integer.parseInt(o);
+                                            descuentoLeyDAO.setCliente(cliente);
+                                            flag = descuentoLeyDAO.ingresoDatosGestion(opcion, descuentoLey, con.iniciarConexionBD());
+                                            break;
+                                        case 7:
+//                                            Rol rol = new Rol();
+//                                            RolDAO rolDAO = new RolDAO();
+//                                            menuGestion();
+//
+//                                            o = in.readLine();
+//                                            opcion = Integer.parseInt(o);
+//                                            rolDAO.setCliente(cliente);
+//                                            flag = rolDAO.ingresoDatosGestion(opcion, rol, con.iniciarConexionBD());
+                                            break;
                                         default:
                                             out.println("Ingresa una opcion valida");
                                             flag = true;
@@ -171,6 +194,7 @@ public class Hilo extends Thread{
 
                                     Empleado empleado = new Empleado();
                                     EmpleadoDAO empleadoDAO = new EmpleadoDAO();
+                                    PlanillaDAO planillaDAO = new PlanillaDAO();
 
                                     switch(opcion){
                                         case 1:  
@@ -201,13 +225,23 @@ public class Hilo extends Thread{
                                             empleadoDAO.setCliente(cliente);
                                             empleadoDAO.actualizarSalarioEmpleado(empleado, con.iniciarConexionBD(), cliente);
                                             break;
+                                        case 7:
+                                            planillaDAO = new PlanillaDAO();
+                                            planillaDAO.verHistorial(con.iniciarConexionBD(), cliente);
+                                            
+                                            break;
+                                        case 8:
+                                            planillaDAO = new PlanillaDAO();
+                                            planillaDAO.calcularPlanilla(con.iniciarConexionBD(), cliente);
+
+                                            break;
                                         default:
-                                            out.println("Ingresa una opcion valida");
+                                            out.println("\nIngresa una opcion valida");
                                             flag = true;
                                     }
 
                                 } catch (Exception e) {
-                                    out.println("Ingresa una opcion valida");
+                                    out.println("\nIngresa una opcion valida");
                                     e.printStackTrace();
                                     flag = true;
                                 }
