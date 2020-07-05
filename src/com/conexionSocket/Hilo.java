@@ -2,11 +2,13 @@
 package com.conexionSocket;
 
 import com.conexionBD.ConexionBD;
+import com.correo.CorreoElectronico;
 import com.dao.DepartamentoDAO;
 import com.dao.DescuentoLeyDAO;
 import com.dao.EmpleadoDAO;
 import com.dao.EstadoDAO;
 import com.dao.PuestoDAO;
+import com.dao.RentaDAO;
 import com.dao.RolDAO;
 import com.dao.UsuarioDAO;
 import com.entidades.Departamento;
@@ -14,18 +16,23 @@ import com.entidades.DescuentoLey;
 import com.entidades.Empleado;
 import com.entidades.Estado;
 import com.entidades.Puesto;
+import com.entidades.Renta;
 import com.entidades.Rol;
 import com.entidades.Usuario;
 import com.login.Login;
 import com.planilla.PlanillaDAO;
+import com.propiedades.Propiedades;
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.GregorianCalendar;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.mail.EmailException;
 
 /**
  *
@@ -80,16 +87,24 @@ public class Hilo extends Thread{
 
                         if(!(validacion == null)){
                         out.println("\nBienvenido " + validacion + " " + nombre);
+                        
+                        Propiedades propiedades = new Propiedades();
+                        GregorianCalendar gc = new GregorianCalendar();
+                        byte fechaHoy = (byte) gc.get(GregorianCalendar.DAY_OF_MONTH);
+                        byte fechaPago = Byte.parseByte(propiedades.cargarPropiedades().getProperty("fechaPla"));
+                        boolean pagar = Boolean.valueOf(propiedades.cargarPropiedades().getProperty("pagar"));
 
-                        out.println("\nSeleccione una opcion: ");
-                        if(validacion.equalsIgnoreCase("Administracion")){
+                        if(validacion.equalsIgnoreCase("Administrador")){
+                            
+                            //autenticacion(1);
 
                             boolean flag = true;
                             String o;
                             do {
+                                out.println("\nSeleccione una opcion: ");
                                 out.println("1. Gestion de Departamentos\t 2. Gestion de Estados de empleado\t 3. Gestion de Puestos");
                                 out.println("4. Gestion de Usuarios\t\t 5. Gestion de Roles\t\t\t 6. Gestion de Descuentos de ley");
-                                out.println("7. Gestion de Renta");
+                                out.println("7. Gestion de Tramos de renta\t 8. Actualizacion fecha de pago de planilla");
                                 try {
                                     flag = false;
                                     o = in.readLine();
@@ -157,14 +172,26 @@ public class Hilo extends Thread{
                                             flag = descuentoLeyDAO.ingresoDatosGestion(opcion, descuentoLey, con.iniciarConexionBD());
                                             break;
                                         case 7:
-//                                            Rol rol = new Rol();
-//                                            RolDAO rolDAO = new RolDAO();
-//                                            menuGestion();
-//
-//                                            o = in.readLine();
-//                                            opcion = Integer.parseInt(o);
-//                                            rolDAO.setCliente(cliente);
-//                                            flag = rolDAO.ingresoDatosGestion(opcion, rol, con.iniciarConexionBD());
+                                            Renta renta = new Renta();
+                                            RentaDAO rentaDAO = new RentaDAO();
+                                            menuGestion();
+
+                                            o = in.readLine();
+                                            opcion = Integer.parseInt(o);
+                                            rentaDAO.setCliente(cliente);
+                                            flag = rentaDAO.ingresoDatosGestion(opcion, renta, con.iniciarConexionBD());
+                                            break;
+                                        case 8:
+                                            out.println("La fecha que se paga planilla es " + fechaPago + " de cada mes");
+                                            int dia;
+                                            do {                                                
+                                                out.print("Ingresa el nuevo dia del mes (1-30): ");
+                                                dia = Integer.parseInt(in.readLine());
+                                            } while (dia <= 0 || dia > 30);
+                                            
+                                            propiedades.insertarPropiedades("fechaPla", String.valueOf(dia), "src/com/propiedades/configuracion.properties");
+                                            fechaPago = Byte.parseByte((propiedades.cargarPropiedades().getProperty("fechaPla")));
+                                            out.println("\nActualizado dia de pago de planilla");
                                             break;
                                         default:
                                             out.println("Ingresa una opcion valida");
@@ -181,9 +208,33 @@ public class Hilo extends Thread{
                         }
                         
                         else if(validacion.equalsIgnoreCase("Usuario")){
+                            //autenticacion(2);
+                            
+                            
+                            if(fechaHoy == fechaPago-1){
+                                propiedades.insertarPropiedades("pagar", "true", "src/com/propiedades/configuracion.properties");
+                            }
+                            if(fechaHoy == fechaPago && pagar){
+                                out.println("\nATENCION! ESTE DIA SE DEBE PAGAR PLANILLA");
+                                out.print("Desea pagar la planilla en este momento? 'Y' si, culquier tecla, no: ");
+                                
+                                if("Y".equalsIgnoreCase(in.readLine())){
+                                    PlanillaDAO planillaDAO = new PlanillaDAO();
+                                    planillaDAO = new PlanillaDAO();
+                                    planillaDAO.calcularPlanilla(con.iniciarConexionBD(), cliente, fechaHoy, fechaPago, pagar);
+                                    
+                                    propiedades.insertarPropiedades("pagar", "false", "src/com/propiedades/configuracion.properties");
+                                }
+                                else{
+                                    out.println("Ok, puedes pagar la planilla ingresando en la opcion 8");
+                                }    
+                            }
+                            
+                            pagar = Boolean.valueOf(propiedades.cargarPropiedades().getProperty("pagar"));
                             boolean flag = true;
                             String o;
                             do {
+                                out.println("\nSeleccione una opcion: ");
                                 out.println("1. Actualizacion de datos de personales del empleado\n\r2. Actualizacion de estado de empleado (despido, etc..)");
                                 out.println("3. Contratacion de empleado\n\r4. Actualizacion de departamento y puesto del empleado\n\r5. Asignacion de jefatura");
                                 out.println("6. Actualizacion de salario de empleado\n\r7. Visualizacion de pagos generados\n\r8. Generacion de pagos en planilla");
@@ -232,7 +283,7 @@ public class Hilo extends Thread{
                                             break;
                                         case 8:
                                             planillaDAO = new PlanillaDAO();
-                                            planillaDAO.calcularPlanilla(con.iniciarConexionBD(), cliente);
+                                            planillaDAO.calcularPlanilla(con.iniciarConexionBD(), cliente, fechaHoy, fechaPago, pagar);
 
                                             break;
                                         default:
@@ -269,6 +320,40 @@ public class Hilo extends Thread{
                 flagInicio = true;
             }
         }while(flagInicio);
+    }
+    
+    public void autenticacion(int tipo) throws EmailException, IOException{
+        CorreoElectronico correo = new CorreoElectronico();
+        boolean flag = false;
+        
+        int numero = (int) (Math.random()*(999999-100000+1)+100000);
+        out.print("Para terminar la autenticacion, ingresa tu correo electronico de gmail: ");
+        
+        do {            
+            try {
+                correo.mandarCorreo(in.readLine(), tipo, numero);
+                out.print("Se ha enviado un codigo de autenticacion a tu correo, digitalo: ");
+                flag = false;
+                do {                    
+                    try {
+                        while(numero != Integer.parseInt(in.readLine())){
+                            out.print("Codigo incorrecto, ingresalo nuevamente: ");
+                        }
+                        out.println("Perfecto! Ya puedes ingresar");
+                        flag = false;
+                    } catch (Exception e) {
+                        out.print("Codigo incorrecto, ingresalo nuevamente: ");
+                        flag = true;
+                    }
+                } while (flag);
+  
+            } catch (Exception e) {
+                out.print("Ingresa un correo electronico valido de gmail: ");
+                flag = true;
+            }
+        } while (flag);
+        
+        
     }
     
     public void menuGestion(){

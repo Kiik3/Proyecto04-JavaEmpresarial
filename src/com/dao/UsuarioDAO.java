@@ -2,6 +2,7 @@
 package com.dao;
 
 import com.entidades.Usuario;
+import com.propiedades.Encriptador;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,12 +77,11 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
         
         int i = 0;
         super.out.println("Lista de Usuarios:\n");
-        super.out.println("Id\tNombre\tContraseña\tCorreo\tRol");
+        super.out.println("Id\tNombre\tCorreo\tRol");
         for(Usuario l : lista){
             i++;
             super.out.print(l.getId() + "\t");
             super.out.print(l.getNombre()+ "\t");
-            super.out.print(l.getContraseña()+ "\t");
             super.out.print(l.getCorreo()+ "\t");
             
             RolDAO rolDAO = new RolDAO();
@@ -131,8 +130,7 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
     
     @Override
     public boolean ingresoDatosGestion(int opcion, Usuario usuario, Connection con, Socket cliente) throws Exception{
-        Scanner scanner = new Scanner(System.in);
-        scanner.useDelimiter("\n");
+        Encriptador enc = new Encriptador();
         
         RolDAO rolDAO = new RolDAO();
         boolean flag = false;
@@ -157,7 +155,7 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                 super.out.print("Ingrese el nombre de usuario: ");
                 usuario.setNombre(super.in.readLine());
                 super.out.print("Ingrese la contrasena: ");
-                usuario.setContraseña(super.in.readLine());
+                usuario.setContraseña(enc.encriptador(super.in.readLine()));
                 super.out.print("Ingrese el correo electronico: ");
                 usuario.setCorreo(super.in.readLine());
                 
@@ -188,7 +186,7 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                     super.out.print("Ingrese el nuevo nombre de usuario: ");
                     usuario.setNombre(super.in.readLine());
                     super.out.print("Ingrese la nueva contrasena: ");
-                    usuario.setContraseña(super.in.readLine());
+                    usuario.setContraseña(enc.encriptador(super.in.readLine()));
                     super.out.print("Ingrese el nuevo correo electronico: ");
                     usuario.setCorreo(super.in.readLine());
 

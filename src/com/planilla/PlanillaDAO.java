@@ -3,6 +3,7 @@ package com.planilla;
 
 import com.entidades.DescuentoLey;
 import com.entidades.Empleado;
+import com.entidades.Renta;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,13 +25,14 @@ public class PlanillaDAO {
     PrintStream out;
     BufferedReader in;
     
-    public void calcularPlanilla(Connection con, Socket cliente) throws SQLException, IOException{
+    public void calcularPlanilla(Connection con, Socket cliente, byte fechaHoy, byte fechaPago, boolean pagar) throws SQLException, IOException{
         out = new PrintStream(cliente.getOutputStream());
         in = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
             
         List<Empleado> lista = new ArrayList();
         List<HistorialPago> listaHistorial = new ArrayList();
         List<DescuentoLey> listaDescuento = new ArrayList();
+        List<Renta> listaTramo = new ArrayList();
         double totalIsss = 0, totalAfp = 0, totalRenta = 0;
         double totalSalario= 0, totalDescuento = 0, totalPago = 0;
         double isss, afp, renta = 0, pago;
@@ -38,14 +40,30 @@ public class PlanillaDAO {
 
         lista = empleadosActivos(con);
         
+        PreparedStatement pre;
+        ResultSet rs;
         String query = "select * from ADM_DES_DESCUENTO_LEY";
         
-        PreparedStatement pre = con.prepareStatement(query);
-        ResultSet rs = pre.executeQuery();
+        pre = con.prepareStatement(query);
+        rs = pre.executeQuery();
         
         while(rs.next()){
             DescuentoLey descuentoLey = new DescuentoLey(rs.getInt("DES_ID"), rs.getString("DES_NOMBRE"), rs.getDouble("DES_PORCENTAJE"));
             listaDescuento.add(descuentoLey);
+        }
+        
+        rs.close();
+        pre.close();
+        
+        query = "select * from ADM_REN_RENTA";
+        
+        pre = con.prepareStatement(query);
+        rs = pre.executeQuery();
+        
+        while(rs.next()){
+            Renta rentaT = new Renta(rs.getInt("REN_ID"), rs.getString("REN_TRAMO"), rs.getDouble("REN_DESDE"),
+                        rs.getDouble("REN_HASTA"), rs.getDouble("REN_PORCENTAJE"), rs.getDouble("REN_SOBRE_EXCESO"), rs.getDouble("REN_CUOTA_FIJA"));
+            listaTramo.add(rentaT);
         }
         
         rs.close();
@@ -62,19 +80,13 @@ public class PlanillaDAO {
                 isss = l.getSalario()*(listaDescuento.get(0).getPorcentaje()/100);
                 afp = l.getSalario()*(listaDescuento.get(1).getPorcentaje()/100);
                 salarioRenta = l.getSalario() - (isss + afp);
-
-                if(salarioRenta >= 0.01 && salarioRenta <= 472){
-                    renta = 0;
+                
+                for(Renta t : listaTramo){
+                    if(salarioRenta >= t.getDesde() && salarioRenta <= t.getHasta()){
+                        renta = ((salarioRenta-t.getSobreExceso())*(t.getPorcentaje()/100))+t.getCuotaFija();
+                    }
                 }
-                else if(salarioRenta >= 472.01 && salarioRenta <= 895.24){
-                    renta = ((salarioRenta-472)*0.1)+17.67;
-                }
-                else if(salarioRenta >= 895.25 && salarioRenta <= 2038.10){
-                    renta = ((salarioRenta-895.24)*0.2)+60;
-                }
-                else if(salarioRenta >= 2038.11){
-                    renta = ((salarioRenta-2038.10)*0.3)+288.57;
-                }
+                
                 pago = l.getSalario() - (isss + afp + renta);
 
                 out.print(String.format("%.2f", isss) + "\t");
@@ -99,11 +111,16 @@ public class PlanillaDAO {
             planilla.setTotalSalario(totalSalario);
             planilla.setTotalDescuento(totalDescuento);
             planilla.setTotalPago(totalPago);
-
-            pagarPlanilla(con, planilla, lista, listaHistorial);
+            
+            if(fechaHoy == fechaPago && pagar){
+                pagarPlanilla(con, planilla, lista, listaHistorial);
+                out.println("\nPlanilla pagada satisfactoriamente");
+            }
+            else
+                out.println("\nNo se pago planilla. Pago de planilla es el " + fechaPago + " de cada mes");
         }
         else{
-            out.println("No se encontraron empleados activos");
+            out.println("\nNo se encontraron empleados activos");
         }
         
     }
@@ -157,6 +174,7 @@ public class PlanillaDAO {
         pre.close();
         
         ingresarHistorial(con, listaHistorial);
+
     }
     
     public void ingresarHistorial(Connection con, List<HistorialPago> listaHistorial) throws SQLException{
