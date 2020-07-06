@@ -9,13 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  *
  * @author Enrique Ochoa
  */
 public class RolDAO extends AbstractDAO<Rol>{
+    //Todos son métodos heredados, la descripción de lo que hacen se encuentra en la clase AbstractDAO
     
     @Override
     public String nombreTabla(){
@@ -47,7 +47,8 @@ public class RolDAO extends AbstractDAO<Rol>{
     public List<Rol> mapeoSeleccionar(ResultSet rs) throws SQLException{
         
         List<Rol> lista = new ArrayList();
-
+        
+        //Se recorre el rs para mapear los registros obtenidos
         while(rs.next()){ 
             Rol rol = new Rol();
             
@@ -65,13 +66,14 @@ public class RolDAO extends AbstractDAO<Rol>{
     public int impresion(List<Rol> lista) throws SQLException{
         
         int i = 0;
-        super.out.println("Lista de Roles:\n");
-        super.out.println("Id\tRol");
+        super.out.println("\rLista de Roles:\n");
+        super.out.println("\rId\tRol");
         for(Rol l : lista){
             i++;
-            super.out.print(l.getId()+ "\t");
+            super.out.print("\r" + l.getId()+ "\t");
             super.out.println(l.getNombre()+ "\t");
         }
+        //valida si el query está vacío
         if(i == 0){
             super.out.println("No se encontraron resultados");
         }
@@ -80,18 +82,19 @@ public class RolDAO extends AbstractDAO<Rol>{
     
     @Override
     public boolean ingresoDatosGestion(int opcion, Rol rol, Connection con) throws Exception{
-        Scanner scanner = new Scanner(System.in);
-        scanner.useDelimiter("\n");
+
         boolean flag = false;
         int i;
         int leerInt;
         String leer;
         
         switch(opcion){
+            //Listar todos los registros
             case 1:
                 setConexion(con);
                 impresion(seleccionar());
                 break;
+            //Listar todos los registros por id
             case 2:
                 setConexion(con);
                 super.out.print("Ingresa el id: ");
@@ -99,6 +102,7 @@ public class RolDAO extends AbstractDAO<Rol>{
                 leerInt = Integer.parseInt(leer);
                 impresion(seleccionar(leerInt));
                 break;
+            //Ingresar un nuevo registro
             case 3:
                 setConexion(con);
                 super.out.print("Ingrese el nombre del rol: ");
@@ -108,11 +112,13 @@ public class RolDAO extends AbstractDAO<Rol>{
                 
                 super.out.println("\nRol agregado correctamente!");
                 break;
+            //Actualizar un registro
             case 4:
                 setConexion(con);
                 i = impresion(seleccionar());
                 
                 if(i != 0){
+                    //Actualización en cascada
                     super.out.println("Atencion! Los cambios tambien se veran reflejados en los usuarios que hagan uso del rol que se actualizara");
                     super.out.print("\nIngrese el id del rol a actualizar: ");
                     leer = super.in.readLine();
@@ -132,6 +138,7 @@ public class RolDAO extends AbstractDAO<Rol>{
                 }
                 
                 break;
+            //Eliminar un registro
             case 5:
                 setConexion(con);
                 i = impresion(seleccionar());
@@ -140,7 +147,8 @@ public class RolDAO extends AbstractDAO<Rol>{
                     super.out.print("Ingresa el id: ");
                     leer = super.in.readLine();
                     leerInt = Integer.parseInt(leer);
-
+                    
+                    //No se permite eliminar si un usuario tiene el rol asignado
                     try {
                         eliminar(leerInt);
                         super.out.println("\nRol eliminado correctamente!");

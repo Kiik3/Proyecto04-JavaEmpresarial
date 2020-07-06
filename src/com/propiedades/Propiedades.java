@@ -1,6 +1,7 @@
 
 package com.propiedades;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,11 +18,14 @@ import java.util.logging.Logger;
 public class Propiedades {
     
     private static String CONFIGURACION = "configuracion.properties";
+    private static String RUTA = "pagarplanilla.properties";
+    private static String RUTAPLA = "fechaplanilla.properties";
     
     public InputStream getResourcesInputAsStream(String configuracion){
         return Propiedades.class.getResourceAsStream(configuracion);
     }
     
+    //Método para cargar el archivo de propiedades
     public Properties cargarPropiedades(){
         
         Properties propiedades = new Properties();
@@ -33,21 +37,59 @@ public class Propiedades {
         
         return propiedades;
     }
+    //Cargar fecha de pago de planilla
+    public Properties cargarFechaPla(){
+        
+        Properties propiedades = new Properties();
+        InputStream in;
+        try {
+            in = new FileInputStream(RUTAPLA);
+            propiedades.load(in);
+        } catch (IOException ex) {
+            Logger.getLogger(Propiedades.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return propiedades;
+    }
     
-    public void insertarPropiedades(String key, String value, String ruta){
+    public Properties cargarPagarPla(){
+        
+        Properties propiedades = new Properties();
+        InputStream in;
+        try {
+            in = new FileInputStream(RUTA);
+            propiedades.load(in);
+        } catch (IOException ex) {
+            Logger.getLogger(Propiedades.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return propiedades;
+    }
+    //Método para modificar propiedades
+    public void insertarPropiedades(String key, String value){
         Properties propiedades = new Properties();
         OutputStream out;
         
         try {
-            out = new FileOutputStream(ruta);
-            propiedades.setProperty("smtp", cargarPropiedades().getProperty("smtp"));
-            propiedades.setProperty("port", cargarPropiedades().getProperty("port"));
-            propiedades.setProperty("us", cargarPropiedades().getProperty("us"));
-            propiedades.setProperty("pa", cargarPropiedades().getProperty("pa"));
-            propiedades.setProperty("usBD", cargarPropiedades().getProperty("usBD"));
-            propiedades.setProperty("url", cargarPropiedades().getProperty("url"));
-            propiedades.setProperty("fechaPla", cargarPropiedades().getProperty("fechaPla"));
-            propiedades.setProperty("pagar", cargarPropiedades().getProperty("pagar"));
+            out = new FileOutputStream(RUTA);
+            
+            propiedades.setProperty(key, value);
+            propiedades.store(out, "");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Propiedades.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Propiedades.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+    public void insertarPla(String key, String value){
+        Properties propiedades = new Properties();
+        OutputStream out;
+        
+        try {
+            out = new FileOutputStream(RUTAPLA);
+            
             propiedades.setProperty(key, value);
             propiedades.store(out, "");
         } catch (FileNotFoundException ex) {

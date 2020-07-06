@@ -18,6 +18,7 @@ import java.util.logging.Logger;
  * @author Enrique Ochoa
  */
 public class UsuarioDAO extends AbstractDAO<Usuario>{
+    //Todos son métodos heredados, la descripción de lo que hacen se encuentra en la clase AbstractDAO
     
     @Override
     public String nombreTabla(){
@@ -55,7 +56,8 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
     public List<Usuario> mapeoSeleccionar(ResultSet rs) throws SQLException{
 
         List<Usuario> lista = new ArrayList();
-
+        
+        //Se recorre el rs para mapear los registros obtenidos
         while(rs.next()){
             Usuario usuario = new Usuario();
             
@@ -76,14 +78,15 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
     public int impresion(List<Usuario> lista) throws SQLException {
         
         int i = 0;
-        super.out.println("Lista de Usuarios:\n");
-        super.out.println("Id\tNombre\tCorreo\tRol");
+        super.out.println("\rLista de Usuarios:\n");
+        super.out.println("\rId\tNombre\tCorreo\tRol");
         for(Usuario l : lista){
             i++;
-            super.out.print(l.getId() + "\t");
+            super.out.print("\r" + l.getId() + "\t");
             super.out.print(l.getNombre()+ "\t");
             super.out.print(l.getCorreo()+ "\t");
             
+            //Se llama a rolDAO para mostrar en los resultados el nombre del rol al que pertenece el usuario
             RolDAO rolDAO = new RolDAO();
             rolDAO.setConexion(super.getConexion());
             try {
@@ -98,35 +101,13 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                 Logger.getLogger(UsuarioDAO.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        //valida si el query está vacío
         if(i == 0){
             super.out.println("No se encontraron resultados");
         }
         
-//        System.out.println("Lista de Usuarios:\n");
-//        System.out.println("Id\tNombre\tContraseña\tCorreo\tRol");
-//        while(rs.next()){
-//            System.out.print(rs.getInt("USU_ID") + "\t");
-//            System.out.print(rs.getString("USU_NOMBRE") + "\t");
-//            System.out.print(rs.getString("USU_CONTRASENA") + "\t");
-//            System.out.print(rs.getString("USU_CORREO") + "\t");
-//            
-//            RolDAO rolDAO = new RolDAO();
-//            rolDAO.setConexion(super.getConexion());
-//            try {
-//                map = rolDAO.seleccionar(rs.getInt("ROL_ID"));
-//                System.out.println(map.get("ROL_NOMBRE"));
-//            } catch (Exception ex) {
-//                Logger.getLogger(UsuarioDAO.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
-            return i;
+        return i;
     }
-
-//    @Override
-//    protected void impresionId(Map map) throws SQLException {
-//        System.out.print(map.get("ROL_ID")+"\t");
-//        System.out.println(map.get("ROL_NOMBRE")+"\t");
-//    }
     
     @Override
     public boolean ingresoDatosGestion(int opcion, Usuario usuario, Connection con, Socket cliente) throws Exception{
@@ -139,10 +120,12 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
         String leer;
         
         switch(opcion){
+            //Listar todos los registros
             case 1:
                 setConexion(con);
                 impresion(seleccionar());
                 break;
+            //Listar todos los registros por id
             case 2:
                 setConexion(con);
                 super.out.print("Ingresa el id: ");
@@ -150,12 +133,13 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                 leerInt = Integer.parseInt(leer);
                 impresion(seleccionar(leerInt));
                 break;
+            //Ingresar un nuevo registro
             case 3:
                 setConexion(con);
                 super.out.print("Ingrese el nombre de usuario: ");
                 usuario.setNombre(super.in.readLine());
                 super.out.print("Ingrese la contrasena: ");
-                usuario.setContraseña(enc.encriptador(super.in.readLine()));
+                usuario.setContraseña(enc.encriptador(super.in.readLine())); //Se ingresa encriptada la contraseña
                 super.out.print("Ingrese el correo electronico: ");
                 usuario.setCorreo(super.in.readLine());
                 
@@ -174,6 +158,7 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                 
                 super.out.println("\nUsaurio agregado correctamente!");
                 break;
+            //Actualizar un registro
             case 4:
                 setConexion(con);
                 i = impresion(seleccionar());
@@ -186,7 +171,7 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                     super.out.print("Ingrese el nuevo nombre de usuario: ");
                     usuario.setNombre(super.in.readLine());
                     super.out.print("Ingrese la nueva contrasena: ");
-                    usuario.setContraseña(enc.encriptador(super.in.readLine()));
+                    usuario.setContraseña(enc.encriptador(super.in.readLine())); //Se actualizada encriptada la contraseña
                     super.out.print("Ingrese el nuevo correo electronico: ");
                     usuario.setCorreo(super.in.readLine());
 
@@ -212,6 +197,7 @@ public class UsuarioDAO extends AbstractDAO<Usuario>{
                 }
                 
                 break;
+            //Eliminar un registro
             case 5:
                 setConexion(con);
                 i = impresion(seleccionar());

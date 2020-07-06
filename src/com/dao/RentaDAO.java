@@ -15,6 +15,7 @@ import java.util.List;
  * @author Enrique Ochoa
  */
 public class RentaDAO extends AbstractDAO<Renta>{
+    //Todos son métodos heredados, la descripción de lo que hacen se encuentra en la clase AbstractDAO
     
     @Override
     public String nombreTabla(){
@@ -56,7 +57,8 @@ public class RentaDAO extends AbstractDAO<Renta>{
     public List<Renta> mapeoSeleccionar(ResultSet rs) throws SQLException{
         
         List<Renta> lista = new ArrayList();
-
+        
+        //Se recorre el rs para mapear los registros obtenidos
         while(rs.next()){ 
             Renta renta = new Renta();
             
@@ -79,11 +81,11 @@ public class RentaDAO extends AbstractDAO<Renta>{
     public int impresion(List<Renta> lista) throws SQLException{
         
         int i = 0;
-        super.out.println("Lista de Tramos:\n");
-        super.out.println("Id\tTramo\tDesde\tHasta\tPorcentaje\tSobre exceso\tCuota fija");
+        super.out.println("\rLista de Tramos:\n");
+        super.out.println("\rId\tTramo\tDesde\tHasta\tPorcentaje\tSobre exceso\tCuota fija");
         for(Renta l : lista){
             i++;
-            super.out.print(l.getId()+ "\t");
+            super.out.print("\r" + l.getId()+ "\t");
             super.out.print(l.getTramo()+ "\t");
             super.out.print(l.getDesde()+ "\t");
             super.out.print(l.getHasta()+ "\t");
@@ -91,6 +93,7 @@ public class RentaDAO extends AbstractDAO<Renta>{
             super.out.print(l.getSobreExceso()+ "\t");
             super.out.println(l.getCuotaFija()+ "\t");
         }
+        //valida si el query está vacío
         if(i == 0){
             super.out.println("No se encontraron resultados");
         }
@@ -104,12 +107,15 @@ public class RentaDAO extends AbstractDAO<Renta>{
         int i;
         int leerInt;
         String leer;
+        double valor;
         
         switch(opcion){
+            //Listar todos los registros
             case 1:
                 setConexion(con);
                 impresion(seleccionar());
                 break;
+            //Listar todos los registros por id
             case 2:
                 setConexion(con);
                 super.out.print("Ingresa el id: ");
@@ -117,25 +123,47 @@ public class RentaDAO extends AbstractDAO<Renta>{
                 leerInt = Integer.parseInt(leer);
                 impresion(seleccionar(leerInt));
                 break;
+            //Ingresar un nuevo registro
             case 3:
                 setConexion(con);
                 super.out.print("Ingrese el nombre del tramo: ");
                 renta.setTramo(super.in.readLine());
                 
-                super.out.print("Ingrese el valor de inicio del tramo: ");
-                renta.setDesde(Double.parseDouble(super.in.readLine()));
+                //Validación que no se ingresen numeros negativos
+                do {                    
+                    super.out.print("Ingrese el valor de inicio del tramo: ");
+                    valor = Double.parseDouble(super.in.readLine());
+                } while (valor <= 0);
                 
-                super.out.print("Ingrese el valor final del tramo: ");
-                renta.setHasta(Double.parseDouble(super.in.readLine()));
+                renta.setDesde(valor);
                 
-                super.out.print("Ingrese el porcentaje a aplicar: ");
-                renta.setPorcentaje(Double.parseDouble(super.in.readLine()));
+                do {                    
+                    super.out.print("Ingrese el valor final del tramo: ");
+                    valor = Double.parseDouble(super.in.readLine());
+                } while (valor <= 0);
                 
-                super.out.print("Ingrese el sobre exceso: ");
-                renta.setSobreExceso(Double.parseDouble(super.in.readLine()));
+                renta.setHasta(valor);
                 
-                super.out.print("Ingrese la cuota fija: ");
-                renta.setCuotaFija(Double.parseDouble(super.in.readLine()));
+                do {                    
+                    super.out.print("Ingrese el porcentaje a aplicar: ");
+                    valor = Double.parseDouble(super.in.readLine());
+                } while (valor <= 0);
+                
+                renta.setPorcentaje(valor);
+                
+                do {                    
+                    super.out.print("Ingrese el sobre exceso: ");
+                    valor = Double.parseDouble(super.in.readLine());
+                } while (valor <= 0);
+                
+                renta.setSobreExceso(valor);
+                
+                do {                    
+                    super.out.print("Ingrese la cuota fija: ");
+                    valor = Double.parseDouble(super.in.readLine());
+                } while (valor <= 0);
+                
+                renta.setCuotaFija(valor);
 
                 insertar(renta);
                 
@@ -152,20 +180,42 @@ public class RentaDAO extends AbstractDAO<Renta>{
                     renta.setId(leerInt);
                     super.out.print("Ingrese el nuevo nombre del tramo: ");
                     renta.setTramo(super.in.readLine());
-                    super.out.print("Ingrese el valor de inicio del tramo: ");
-                    renta.setDesde(Double.parseDouble(super.in.readLine()));
+                    
+                    //Validación que no se ingresen numeros negativos
+                    do {                    
+                        super.out.print("Ingrese el valor de inicio del tramo: ");
+                        valor = Double.parseDouble(super.in.readLine());
+                    } while (valor <= 0);
 
-                    super.out.print("Ingrese el valor final del tramo: ");
-                    renta.setHasta(Double.parseDouble(super.in.readLine()));
+                    renta.setDesde(valor);
 
-                    super.out.print("Ingrese el porcentaje a aplicar: ");
-                    renta.setPorcentaje(Double.parseDouble(super.in.readLine()));
+                    do {                    
+                        super.out.print("Ingrese el valor final del tramo: ");
+                        valor = Double.parseDouble(super.in.readLine());
+                    } while (valor <= 0);
 
-                    super.out.print("Ingrese el sobre exceso: ");
-                    renta.setSobreExceso(Double.parseDouble(super.in.readLine()));
+                    renta.setHasta(valor);
 
-                    super.out.print("Ingrese la cuota fija: ");
-                    renta.setCuotaFija(Double.parseDouble(super.in.readLine()));
+                    do {                    
+                        super.out.print("Ingrese el porcentaje a aplicar: ");
+                        valor = Double.parseDouble(super.in.readLine());
+                    } while (valor <= 0);
+
+                    renta.setPorcentaje(valor);
+
+                    do {                    
+                        super.out.print("Ingrese el sobre exceso: ");
+                        valor = Double.parseDouble(super.in.readLine());
+                    } while (valor <= 0);
+
+                    renta.setSobreExceso(valor);
+
+                    do {                    
+                        super.out.print("Ingrese la cuota fija: ");
+                        valor = Double.parseDouble(super.in.readLine());
+                    } while (valor <= 0);
+
+                    renta.setCuotaFija(valor);
 
                     actualizar(renta);
 
@@ -179,6 +229,7 @@ public class RentaDAO extends AbstractDAO<Renta>{
                 
                 break;
             case 5:
+                //No se permite eliminar estados porque el 1, 2, 3 y 4 hace referencia a tramo 1, 2, 3 y 4
                 super.out.println("\nNo se permiten eliminar tramos de renta!");
                 
                 break;

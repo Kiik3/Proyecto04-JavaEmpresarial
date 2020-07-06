@@ -25,6 +25,7 @@ public class PlanillaDAO {
     PrintStream out;
     BufferedReader in;
     
+    //Método que calcula y permite visualizar la planilla del mes actual
     public void calcularPlanilla(Connection con, Socket cliente, byte fechaHoy, byte fechaPago, boolean pagar) throws SQLException, IOException{
         out = new PrintStream(cliente.getOutputStream());
         in = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
@@ -42,6 +43,8 @@ public class PlanillaDAO {
         
         PreparedStatement pre;
         ResultSet rs;
+        
+        //Se seleccionan los descuentos de ley (isss y afp)
         String query = "select * from ADM_DES_DESCUENTO_LEY";
         
         pre = con.prepareStatement(query);
@@ -55,6 +58,7 @@ public class PlanillaDAO {
         rs.close();
         pre.close();
         
+        //Se seleccionan los tramos de la renta mensual
         query = "select * from ADM_REN_RENTA";
         
         pre = con.prepareStatement(query);
@@ -69,30 +73,34 @@ public class PlanillaDAO {
         rs.close();
         pre.close();
         
-        out.println("Id\tNombre\tApellido\tSalario\tISSS\tAFP\tRenta\tLiquido a pagar");
+        //Se imprime y calcula planilla solo de empleados activos
+        out.println("\rId\tNombre\tApellido\tSalario\tISSS\tAFP\tRenta\tLiquido a pagar");
         if(!lista.isEmpty()){
             for(Empleado l : lista){
-                out.print(l.getId() + "\t");
+                out.print("\r" + l.getId() + "\t");
                 out.print(l.getNombre() + "\t");
                 out.print(l.getApellido()+ "\t\t");
                 out.print(l.getSalario()+ "\t");
 
-                isss = l.getSalario()*(listaDescuento.get(0).getPorcentaje()/100);
-                afp = l.getSalario()*(listaDescuento.get(1).getPorcentaje()/100);
+                isss = l.getSalario()*(listaDescuento.get(0).getPorcentaje()/100); //Calculo de isss
+                afp = l.getSalario()*(listaDescuento.get(1).getPorcentaje()/100); //Calculo de afp
                 salarioRenta = l.getSalario() - (isss + afp);
                 
                 for(Renta t : listaTramo){
                     if(salarioRenta >= t.getDesde() && salarioRenta <= t.getHasta()){
-                        renta = ((salarioRenta-t.getSobreExceso())*(t.getPorcentaje()/100))+t.getCuotaFija();
+                        //Calculo renta segun tramo
+                        renta = ((salarioRenta-t.getSobreExceso())*(t.getPorcentaje()/100))+t.getCuotaFija(); 
                     }
                 }
                 
-                pago = l.getSalario() - (isss + afp + renta);
+                pago = l.getSalario() - (isss + afp + renta); //Calculo de pago total a empleado
 
                 out.print(String.format("%.2f", isss) + "\t");
                 out.print(String.format("%.2f", afp) + "\t");
                 out.print(String.format("%.2f", renta) + "\t");
                 out.println(String.format("%.2f", pago) + "\t");
+                
+                //Calculos totales de planilla
                 totalSalario = totalSalario + l.getSalario();
                 totalIsss = totalIsss + isss;
                 totalAfp = totalAfp + afp;
@@ -101,10 +109,11 @@ public class PlanillaDAO {
                 HistorialPago historialPago = new HistorialPago(l.getId(), l.getNombre(), l.getApellido(), l.getSalario(), isss, afp, renta, pago);
                 listaHistorial.add(historialPago);
             }
+            //Calculos totales de planilla
             totalDescuento = totalIsss + totalAfp + totalRenta;
             totalPago = totalSalario - totalDescuento;
 
-            out.println("TOTAL:\t\t\t\t" + String.format("%.2f", totalSalario) + "\t" + String.format("%.2f", totalIsss) + "\t" + 
+            out.println("\rTOTAL:\t\t\t\t" + String.format("%.2f", totalSalario) + "\t" + String.format("%.2f", totalIsss) + "\t" + 
                     String.format("%.2f", totalAfp) + "\t" + String.format("%.2f", totalRenta) + "\t" + String.format("%.2f", totalPago));
 
             Planilla planilla = new Planilla();
@@ -112,19 +121,21 @@ public class PlanillaDAO {
             planilla.setTotalDescuento(totalDescuento);
             planilla.setTotalPago(totalPago);
             
-            if(fechaHoy == fechaPago && pagar){
+            //Se paga planilla solo si es día de pago
+//            if(fechaHoy == fechaPago && pagar){
                 pagarPlanilla(con, planilla, lista, listaHistorial);
-                out.println("\nPlanilla pagada satisfactoriamente");
-            }
-            else
-                out.println("\nNo se pago planilla. Pago de planilla es el " + fechaPago + " de cada mes");
+                out.println("\n\rPlanilla pagada satisfactoriamente");
+//            }
+//            else
+//                out.println("\n\rNo se pago planilla. Pago de planilla es el " + fechaPago + " de cada mes");
         }
         else{
-            out.println("\nNo se encontraron empleados activos");
+            out.println("\n\rNo se encontraron empleados activos");
         }
         
     }
     
+    //Método que obtiene solo empleados activos
     public List<Empleado> empleadosActivos(Connection con) throws SQLException{
         List<Empleado> lista = new ArrayList();
         
@@ -159,6 +170,7 @@ public class PlanillaDAO {
         return lista;
     }
     
+    //Se ingresa una nueva planilla
     public void pagarPlanilla(Connection con, Planilla planilla, List<Empleado> lista, List<HistorialPago> listaHistorial) throws SQLException{
         
         String query = "insert into ADM_PLA_PLANILLA (PLA_FECHA, PLA_TOTAL_SALARIO, PLA_TOTAL_DESCUENTO, PLA_TOTAL_PAGO)"
@@ -177,6 +189,7 @@ public class PlanillaDAO {
 
     }
     
+    //Se ingresan al historial todos los pagos de cada planilla
     public void ingresarHistorial(Connection con, List<HistorialPago> listaHistorial) throws SQLException{
         List<HistorialPago> lista = new ArrayList();
         
@@ -212,6 +225,7 @@ public class PlanillaDAO {
         pre.close();
     }
     
+    //Permite visualizar todos los pagos totales de planilla, además de los detalles (empleados y sus pagos) de cada planilla
     public void verHistorial(Connection con, Socket cliente) throws SQLException, IOException{
         out = new PrintStream(cliente.getOutputStream());
         in = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
@@ -228,12 +242,13 @@ public class PlanillaDAO {
         pre = con.prepareStatement(query);
         rs = pre.executeQuery();
         
-        out.println("A continuacion se muestra el historial de planillas pagadas\n");
-        out.println("Id\tFecha de pago\tTotal salario nominal\tTotal descuentos\tTOTAL PAGADO");
+        out.println("\rA continuacion se muestra el historial de planillas pagadas\n");
+        out.println("\rId\tFecha de pago\tTotal salario nominal\tTotal descuentos\tTOTAL PAGADO");
         
+        //Todas la planillas
         while(rs.next()){
             lista.add(rs.getInt("PLA_ID"));
-            out.print(rs.getInt("PLA_ID") + "\t");
+            out.print("\r" + rs.getInt("PLA_ID") + "\t");
             out.print(rs.getDate("PLA_FECHA") + "\t\t");
             out.print(String.format("%.2f", rs.getDouble("PLA_TOTAL_SALARIO")) + "\t\t");
             out.print(String.format("%.2f", rs.getDouble("PLA_TOTAL_DESCUENTO")) + "\t\t\t");
@@ -243,7 +258,8 @@ public class PlanillaDAO {
         
         if(i != 0){ 
             do {                
-                out.print("\nIngresa el id de la planilla para ver mas detalles: ");
+                out.print("\n\rIngresa el id de la planilla para ver mas detalles: ");
+                //Validación
                 try {
                     idPlanilla = Integer.parseInt(in.readLine());
                     for(Integer l : lista){
@@ -262,7 +278,7 @@ public class PlanillaDAO {
             } while (flag);  
         }
         else{
-            out.print("\nNo se encontro ninguna planilla en el historial: \n");
+            out.print("\n\rNo se encontro ninguna planilla en el historial: \n");
         }
         
         rs.close();
@@ -274,21 +290,22 @@ public class PlanillaDAO {
         pre.setInt(1, idPlanilla);
         rs = pre.executeQuery();
         
-        out.println("Detalle de planilla seleccionada\n");
-        out.println("Id\tNombre\tApellido\tSalario\tISSS\tAFP\tRenta\tLiquido a pagar");
+        out.println("\rDetalle de planilla seleccionada\n");
+        out.println("\rId\tNombre\tApellido\tSalario\tISSS\tAFP\tRenta\tLiquido a pagar");
         
-            while(rs.next()){
-                lista.add(rs.getInt("PLA_ID"));
-                out.print(rs.getInt("HIS_ID_EMPLEADO") + "\t");
-                out.print(rs.getString("HIS_NOMBRE_EMPLEADO") + "\t");
-                out.print(rs.getString("HIS_APELLIDO_EMPLEADO") + "\t\t");
-                out.print(rs.getDouble("HIS_SALARIO") + "\t");
-                out.print(String.format("%.2f", rs.getDouble("HIS_ISSS")) + "\t");
-                out.print(String.format("%.2f", rs.getDouble("HIS_AFP")) + "\t");
-                out.print(String.format("%.2f", rs.getDouble("HIS_RENTA")) + "\t");
-                out.println(String.format("%.2f", rs.getDouble("HIS_PAGO")) + "\t");
+        //Se muestran todos los detalles segun el id de la planilla seleccionada
+        while(rs.next()){
+            lista.add(rs.getInt("PLA_ID"));
+            out.print("\r" + rs.getInt("HIS_ID_EMPLEADO") + "\t");
+            out.print(rs.getString("HIS_NOMBRE_EMPLEADO") + "\t");
+            out.print(rs.getString("HIS_APELLIDO_EMPLEADO") + "\t\t");
+            out.print(rs.getDouble("HIS_SALARIO") + "\t");
+            out.print(String.format("%.2f", rs.getDouble("HIS_ISSS")) + "\t");
+            out.print(String.format("%.2f", rs.getDouble("HIS_AFP")) + "\t");
+            out.print(String.format("%.2f", rs.getDouble("HIS_RENTA")) + "\t");
+            out.println(String.format("%.2f", rs.getDouble("HIS_PAGO")) + "\t");
 
-            }
+        }
         rs.close();
         pre.close();
         
@@ -300,7 +317,7 @@ public class PlanillaDAO {
         rs = pre.executeQuery();
 
         rs.next();
-        out.println("TOTAL:\t\t\t\t" + String.format("%.2f", rs.getDouble("SUM(HIS_SALARIO)")) + "\t" + 
+        out.println("\rTOTAL:\t\t\t\t" + String.format("%.2f", rs.getDouble("SUM(HIS_SALARIO)")) + "\t" + 
                 String.format("%.2f", rs.getDouble("SUM(HIS_ISSS)")) + "\t" + 
                 String.format("%.2f", rs.getDouble("SUM(HIS_AFP)")) + "\t" + 
                 String.format("%.2f", rs.getDouble("SUM(HIS_RENTA)")) + "\t" + 

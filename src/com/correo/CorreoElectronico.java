@@ -17,6 +17,7 @@ import org.apache.commons.mail.HtmlEmail;
  */
 public class CorreoElectronico {
     
+    //método para enviar un correo electrónico
     public void mandarCorreo(String correo, int tipo, int numero) throws EmailException{
         Propiedades propiedades = new Propiedades();
         Encriptador enc = new Encriptador(); //Instancia para usar método de desencriptación

@@ -14,6 +14,7 @@ import java.sql.SQLException;
  */
 public class Login {
     
+    //método que valida el username y contraseña del usuario que quiere entrar
     public String validacion(Connection con, String nombre, String contraseña) throws SQLException, Exception{
         Encriptador enc = new Encriptador();
         
@@ -24,10 +25,12 @@ public class Login {
         
         String nombreRol;
         if(rs.next()){
+            //Se desencripta la contraseña para validar que sea igual a la introducida
             if(contraseña.equals(enc.desencriptador(rs.getString("USU_CONTRASENA")))){
                 RolDAO rolDAO = new RolDAO();
                 rolDAO.setConexion(con);
-
+                
+                //Se obtiene el nombre del rol al que pertenece
                 nombreRol = rolDAO.seleccionar(rs.getInt("ROL_ID")).get(0).getNombre();
                 rs.close();
                 pre.close();

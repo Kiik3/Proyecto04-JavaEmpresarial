@@ -12,10 +12,8 @@ import java.sql.SQLException;
  * @author Enrique Ochoa
  */
 public class ConexionBD {
-//    private static String url = "jdbc:mysql://34.68.85.103:3306/PROYECTO04_ADMINISTRACION_EMPLEADOS";
-//    private static String user = "java";
-//    private static String password = "cursoJava2020";
     
+    //Método para abrir una nueva conexión a la BD
     public Connection iniciarConexionBD() throws ClassNotFoundException, SQLException{
         Propiedades propiedades = new Propiedades();
         Encriptador enc = new Encriptador();
@@ -28,6 +26,7 @@ public class ConexionBD {
         return con;
     }
     
+    //Método para cerra la conexión a la BD
     public static void cerrarConexionDB(Connection con) throws SQLException{
         con.close();
     }

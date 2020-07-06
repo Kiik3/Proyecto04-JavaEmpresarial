@@ -12,15 +12,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
  * @author Enrique Ochoa
  */
 public abstract class AbstractDAO<T> {
+    //Querys dinámicos
     private String insertQuery = "insert into TABLA (CAMPOS) values (VALORES);";
     private String updateQuery = "update TABLA set CAMPOS where CAMPO_ID = ?;";
     private String deleteQuery = "delete from TABLA where CAMPO_ID = ?";
@@ -31,6 +30,7 @@ public abstract class AbstractDAO<T> {
     protected PrintStream out; 
     protected BufferedReader in; 
     
+    //Ingresar conexión
     public void setConexion(Connection con){
         this.con = con;
     }
@@ -39,11 +39,13 @@ public abstract class AbstractDAO<T> {
         return con;
     }
     
+    //Ingresar cliente conectado y asignar salida y entrada
     public void setCliente(Socket cliente) throws IOException{
         out = new PrintStream(cliente.getOutputStream());
         in = new BufferedReader(new InputStreamReader(cliente.getInputStream()));
     }
-
+    
+    //Método que inserta un nuevo registro en la tabla indicada
     public void insertar(T entidad) throws SQLException, Exception{
         
         String arreglo = "";
@@ -62,12 +64,13 @@ public abstract class AbstractDAO<T> {
         insertQuery = insertQuery.replace("VALORES", arreglo);
         
         PreparedStatement pre = con.prepareStatement(insertQuery);
-        mapeoInsertar(pre, entidad);
+        mapeoInsertar(pre, entidad); //Se llama al mapeo de los campos para sustituirse en el query
         
         pre.executeUpdate();
         pre.close();
     }
     
+    //Método que actualiza un nuevo registro en la tabla indicada
     public void actualizar(T entidad) throws SQLException, Exception{
         
         String campos = Arrays.toString(nombreCampos()).replace("[", "").replace("]", "");
@@ -80,15 +83,15 @@ public abstract class AbstractDAO<T> {
         updateQuery = updateQuery.replace("TABLA", nombreTabla());
         updateQuery = updateQuery.replace("CAMPO_ID", campoId);
         updateQuery = updateQuery.replace("CAMPOS", campos);
-        //System.out.println(updateQuery);
         
         PreparedStatement pre = con.prepareStatement(updateQuery);
-        mapeoActualizar(pre, entidad);
+        mapeoActualizar(pre, entidad); //Se llama al mapeo de los campos para sustituirse en el query
         
         pre.executeUpdate();
         pre.close();
     }
     
+    //Método que eliminar un nuevo registro de la tabla indicada
     public void eliminar(int id) throws SQLException, Exception{
         String campos = Arrays.toString(nombreCampos()).replace("[", "").replace("]", "");
         byte indice = (byte) campos.indexOf(",");
@@ -96,7 +99,6 @@ public abstract class AbstractDAO<T> {
         
         deleteQuery = deleteQuery.replace("TABLA", nombreTabla());
         deleteQuery = deleteQuery.replace("CAMPO_ID", campoId);
-        //System.out.println(deleteQuery);
         
         PreparedStatement pre = con.prepareStatement(deleteQuery);
         pre.setInt(1, id);
@@ -104,6 +106,7 @@ public abstract class AbstractDAO<T> {
         pre.close();
     }
     
+    //Método que selecciona todos los registros de la tabla indicada
     public List<T> seleccionar() throws SQLException, Exception{
         List<T> lista = new ArrayList();
         
@@ -111,17 +114,15 @@ public abstract class AbstractDAO<T> {
         
         PreparedStatement pre = con.prepareStatement(selectQuery);
         ResultSet rs = pre.executeQuery();
-        lista = mapeoSeleccionar(rs);
+        lista = mapeoSeleccionar(rs); //Se llama al mapeo de los campos en una lista segun los registros obtenidos
         
         rs.close();
         pre.close();
         
         return lista;
     }
-//    public List<T> seleccionarForaneo(int id){
-//        
-//    }
     
+    //Método que selecciona los registros de la tabla indicada y segun el id
     public List<T> seleccionar(int id) throws SQLException, Exception{
         List<T> lista = new ArrayList();
         
@@ -136,26 +137,28 @@ public abstract class AbstractDAO<T> {
         pre.setInt(1, id);
         ResultSet rs = pre.executeQuery();
         
-        lista = mapeoSeleccionar(rs);
+        lista = mapeoSeleccionar(rs); //Se llama al mapeo de los campos en una lista segun los registros obtenidos
         
         rs.close();
         pre.close();
         
         return lista;
     }
+    //Métodos abstractos
     
-    protected abstract String nombreTabla();
+    protected abstract String nombreTabla(); //Para obtener nombre de la tabla
     
-    protected abstract String[] nombreCampos();
+    protected abstract String[] nombreCampos(); //Para obtener nombre de campos
     
-    protected abstract void mapeoInsertar(PreparedStatement pre, T entidad) throws SQLException;
+    protected abstract void mapeoInsertar(PreparedStatement pre, T entidad) throws SQLException; //Mapear los valores a ingresar
     
-    protected abstract void mapeoActualizar(PreparedStatement pre, T entidad) throws SQLException;
+    protected abstract void mapeoActualizar(PreparedStatement pre, T entidad) throws SQLException; //Mapear los valores a actualizar
     
-    protected abstract List<T> mapeoSeleccionar(ResultSet rs) throws SQLException;
+    protected abstract List<T> mapeoSeleccionar(ResultSet rs) throws SQLException; //Mapear los registros obtenidos en una lista entidad
        
-    protected abstract int impresion(List<T> lista) throws SQLException;
+    protected abstract int impresion(List<T> lista) throws SQLException; //Imprimir los registros obtenidos
     
+    //Permite al usuario gestionar una entidad: listar, actualizar, ingresar, eliminar
     protected abstract boolean ingresoDatosGestion(int opcion, T entidad, Connection con) throws Exception;
     
     protected abstract boolean ingresoDatosGestion(int opcion, T entidad, Connection con, Socket cliente) throws Exception;

@@ -9,13 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  *
  * @author Enrique Ochoa
  */
 public class DepartamentoDAO extends AbstractDAO<Departamento>{
+    //Todos son métodos heredados, la descripción de lo que hacen se encuentra en la clase AbstractDAO
     
     @Override
     public String nombreTabla(){
@@ -47,7 +47,8 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
     public List<Departamento> mapeoSeleccionar(ResultSet rs) throws SQLException{
         
         List<Departamento> lista = new ArrayList();
-
+        
+        //Se recorre el rs para mapear los registros obtenidos
         while(rs.next()){ 
             Departamento departamento = new Departamento();
             
@@ -65,13 +66,14 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
     public int impresion(List<Departamento> lista) throws SQLException{
         
         int i = 0;
-        super.out.println("Lista de Departamentos:\n");
-        super.out.println("Id\tDepartamento");
+        super.out.println("\rLista de Departamentos:\n");
+        super.out.println("\rId\tDepartamento");
         for(Departamento l : lista){
             i++;
-            super.out.print(l.getId()+ "\t");
+            super.out.print("\r" + l.getId()+ "\t");
             super.out.println(l.getNombre()+ "\t");
         }
+        //valida si el query está vacío
         if(i == 0){
             super.out.println("No se encontraron resultados");
         }
@@ -81,18 +83,19 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
     
     @Override
     public boolean ingresoDatosGestion(int opcion, Departamento departamento, Connection con) throws Exception{
-        Scanner scanner = new Scanner(System.in);
-        scanner.useDelimiter("\n");
+
         boolean flag = false;
         int i;
         int id;
         String leerId;
         
         switch(opcion){
+            //Listar todos los registros
             case 1:
                 setConexion(con);
                 impresion(seleccionar());
                 break;
+            //Listar todos los registros por id
             case 2:
                 setConexion(con);
                 super.out.print("Ingresa el id: ");
@@ -100,6 +103,7 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
                 id = Integer.parseInt(leerId);
                 impresion(seleccionar(id));
                 break;
+            //Ingresar un nuevo registro
             case 3:
                 setConexion(con);
                 super.out.print("Ingrese el nombre del departamento: ");
@@ -109,11 +113,13 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
                 
                 super.out.println("\nDepartamento agregado correctamente!");
                 break;
+            //Actualizar un registro
             case 4:
                 setConexion(con);
                 i = impresion(seleccionar());
                 
                 if(i != 0){
+                    //Actualización en cascada
                     super.out.println("Atencion! Los cambios tambien se veran reflejados en los puestos pertenecientes al departamento");
                     super.out.print("\nIngrese el id del departamento a actualizar: ");
                     leerId = super.in.readLine();
@@ -133,11 +139,13 @@ public class DepartamentoDAO extends AbstractDAO<Departamento>{
                 }
 
                 break;
+            //Eliminar un registro
             case 5:
                 setConexion(con);
                 i = impresion(seleccionar());
                 
                 if(i != 0){
+                    //No se permite eliminar si un empleado esta asignado a un departamento
                     super.out.println("Atencion! Si hay empleado/s que forman parte del departamento, este no se podra eliminar.");
                     super.out.println("Si no es el caso, los puestos pertenecientes al departamento tambien se eliminaran ");
                     super.out.print("Ingresa el id: ");

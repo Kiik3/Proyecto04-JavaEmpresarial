@@ -9,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +17,7 @@ import java.util.logging.Logger;
  * @author Enrique Ochoa
  */
 public class PuestoDAO extends AbstractDAO<Puesto>{
+    //Todos son métodos heredados, la descripción de lo que hacen se encuentra en la clase AbstractDAO
     
     @Override
     public String nombreTabla(){
@@ -55,7 +55,8 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
     public List<Puesto> mapeoSeleccionar(ResultSet rs) throws SQLException{
 
         List<Puesto> lista = new ArrayList();
-
+        
+//Se recorre el rs para mapear los registros obtenidos
         while(rs.next()){
             Puesto puesto = new Puesto();
             
@@ -76,15 +77,16 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
     public int impresion(List<Puesto> lista) throws SQLException {
         
         int i = 0;
-        super.out.println("Lista de Puestos:\n");
-        super.out.println("Id\tPuesto\tSal Minimo\tSal Maximo\tDepartamento");
+        super.out.println("\rLista de Puestos:\n");
+        super.out.println("\rId\tPuesto\tSal Minimo\tSal Maximo\tDepartamento");
         for(Puesto l : lista){
             i++;
-            super.out.print(l.getId() + "\t");
+            super.out.print("\r" +l.getId() + "\t");
             super.out.print(l.getNombre()+ "\t");
             super.out.print(l.getSalarioMinimo()+ "\t");
             super.out.print(l.getSalarioMaximo()+ "\t");
             
+            //Se llama a departamentoDAO para mostrar en los resultados el nombre del departamento al que pertenece el puesto
             DepartamentoDAO departamentoDAO = new DepartamentoDAO();
             departamentoDAO.setConexion(super.getConexion());
             try {
@@ -99,6 +101,7 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                 Logger.getLogger(UsuarioDAO.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        //valida si el query está vacío
         if(i == 0){
             super.out.println("No se encontraron resultados");
         }
@@ -107,8 +110,6 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
     
     @Override
     public boolean ingresoDatosGestion(int opcion, Puesto puesto, Connection con, Socket cliente) throws Exception{
-        Scanner scanner = new Scanner(System.in);
-        scanner.useDelimiter("\n");
         
         DepartamentoDAO departamentoDAO = new DepartamentoDAO();
         boolean flag = false;
@@ -119,10 +120,12 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
         String leer;
         
         switch(opcion){
+            //Listar todos los registros
             case 1:
                 setConexion(con);
                 impresion(seleccionar());
                 break;
+            //Listar todos los registros por id
             case 2:
                 setConexion(con);
                 super.out.print("Ingresa el id: ");
@@ -130,20 +133,26 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                 leerInt = Integer.parseInt(leer);
                 impresion(seleccionar(leerInt));
                 break;
+            //Ingresar un nuevo registro
             case 3:
                 setConexion(con);
                 super.out.print("Ingrese el nombre del puesto: ");
                 puesto.setNombre(super.in.readLine());
-                super.out.print("Ingrese el salario minimo: ");
-                leer = super.in.readLine();
-                leerMinimo = Double.parseDouble(leer);
+                //Se valida que sea positivo el salario
+                do {                    
+                    super.out.print("Ingrese el salario minimo: ");
+                    leer = super.in.readLine();
+                    leerMinimo = Double.parseDouble(leer);
+                } while (leerMinimo <= 0);
+                
                 puesto.setSalarioMinimo(leerMinimo);
+                //Se valida que sea positivo el salario máximo y que no mayor al salrio mínimo
                 do {                    
                     super.out.print("Ingrese el salario maximo: ");
                     leer = super.in.readLine();
                     leerMaximo = Double.parseDouble(leer);
                     
-                } while (leerMinimo >= leerMaximo);
+                } while (leerMinimo >= leerMaximo || leerMaximo <= 0);
  
                 puesto.setSalarioMaximo(leerMaximo);
                 
@@ -162,11 +171,13 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                 
                 super.out.println("\nPuesto agregado correctamente!");
                 break;
+            //Actualizar un registro
             case 4:
                 setConexion(con);
                 i = impresion(seleccionar());
                 
                 if(i != 0){
+                    //Actualización en cascada
                     super.out.println("Atencion! Los cambios tambien se veran reflejados en los empleados que ocupen el puesto que se actualizara");
                     super.out.print("\nIngrese el id del puesto a actualizar: ");
                     leer = super.in.readLine();
@@ -174,16 +185,21 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                     puesto.setId(leerInt);
                     super.out.print("Ingrese el nuevo nombre del puesto: ");
                     puesto.setNombre(super.in.readLine());
-                    super.out.print("Ingrese el nuevo salario minimo: ");
-                    leer = super.in.readLine();
-                    leerMinimo = Double.parseDouble(leer);
+                    //Se valida que sea positivo el salario
+                    do {                    
+                        super.out.print("Ingrese el salario minimo: ");
+                        leer = super.in.readLine();
+                        leerMinimo = Double.parseDouble(leer);
+                    } while (leerMinimo <= 0);
+                    
                     puesto.setSalarioMinimo(leerMinimo);
+                    //Se valida que sea positivo el salario máximo y que no mayor al salrio mínimo
                     do {                    
                         super.out.print("Ingrese el nuevo salario maximo: ");
                         leer = super.in.readLine();
                         leerMaximo = Double.parseDouble(leer);
                     
-                    } while (leerMinimo >= leerMaximo);
+                    } while (leerMinimo >= leerMaximo || leerMaximo <= 0);
 
                     puesto.setSalarioMaximo(leerMaximo);
 
@@ -209,6 +225,7 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                 }
                 
                 break;
+            //Eliminar un registro
             case 5:   
                 setConexion(con);
                 i = impresion(seleccionar());
@@ -217,7 +234,8 @@ public class PuestoDAO extends AbstractDAO<Puesto>{
                     super.out.print("Ingresa el id: ");
                     leer = super.in.readLine();
                     leerInt = Integer.parseInt(leer);
-
+                    
+                    //No se puede eliminar si un empleado está asignado al puesto
                     try {
                         eliminar(leerInt);
                         super.out.println("\nPuesto eliminado correctamente!");

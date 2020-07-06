@@ -58,6 +58,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
 
     }
     
+    //Ingresar nuevo empleado
     public void ingresarEmpleado(Empleado empleado, Connection con, Socket cliente) throws IOException, Exception{
  
         String leer;
@@ -89,11 +90,10 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         super.out.print("Ingrese el correo: ");
         empleado.setCorreo(super.in.readLine());
         
-
         departamentoDAO = new DepartamentoDAO();
         departamentoDAO.setCliente(cliente);
         departamentoDAO.setConexion(super.getConexion());
-        departamentoDAO.impresion(departamentoDAO.seleccionar());
+        departamentoDAO.impresion(departamentoDAO.seleccionar()); //Se manda a listar los departamentos
 
         super.out.print("Ingrese el id del departamento: ");
         leer = super.in.readLine();
@@ -104,8 +104,10 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         puestoDAO.setCliente(cliente);
         puestoDAO.setConexion(super.getConexion());
         List<Puesto> lista = new ArrayList();
+        
+        //Se manda a listar los puestos del departamento
         lista = puestosPorDepartamento(empleado.getIdDepartamento(), super.getConexion(), puestoDAO);
-//        lista = puestoDAO.seleccionar(empleado.getIdDepartamento());
+        lista = puestoDAO.seleccionar(empleado.getIdDepartamento());
         puestoDAO.impresion(lista);
         
         do {
@@ -127,25 +129,27 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
 
         for(Puesto l :  lista){
             if(empleado.getIdPuesto() == l.getId()){
+                //Se valida que el salario este entre el rango definido por el puesto y sea positivo
                 do {                    
                     super.out.print("Ingrese el salario (debe estar entre el rango permitido por el puesto): ");
                     leer = super.in.readLine();
                     salario = Double.parseDouble(leer);
                     empleado.setSalario(salario);
-                } while (salario < l.getSalarioMinimo() || salario > l.getSalarioMaximo());
+                } while (salario < l.getSalarioMinimo() || salario > l.getSalarioMaximo() || salario <= 0);
             }
             
         }
         
-        empleado.setIdEstado(1);
+        empleado.setIdEstado(1); //Se le ingresa el estado activo automáticamente (1)
         
         super.out.println("Escoja un jefe de la siguiente lista:");
         impresionDatosPersonales(listaJefes(super.getConexion()));
         List<Empleado> listaEmp = new ArrayList();
-        //listaEmp = seleccionar();                     //Descomentar para mostrar todos los empleados
+        //Se muestran solo aquellos empleados que son jefes
         listaEmp = listaJefes(super.getConexion());
         
         do {
+            //Si el empleado será jefe se debe ingresar n 
             super.out.print("Ingrese el id del empleado que sera jefe del empleado que se esta ingresando o 'n' si sera jefe: ");
             leer = super.in.readLine();
             
@@ -175,6 +179,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         super.out.println("\nEmpleado agregado correctamente!");
     }
     
+    //Método para ingresar una fecha
     public Date ingresarFecha() throws IOException{
         String leer;
         GregorianCalendar gc;
@@ -199,6 +204,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         return dateSQL;
     }
     
+    //Método que trae todos los puestos de un departamento en específico
     public List<Puesto> puestosPorDepartamento(int id, Connection con, PuestoDAO puestoDAO) throws SQLException{
         List<Puesto> lista = new ArrayList();
         
@@ -215,6 +221,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         return lista;
     }
     
+    //Se manda a listar los empleados activos que son jefes
     public List<Empleado> listaJefes(Connection con) throws SQLException{
         List<Empleado> lista = new ArrayList();
         
@@ -230,6 +237,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         return lista;
     }
     
+    //Se manda a listar los empleados activos que no son jefes
     public List<Empleado> listaNoJefes(Connection con) throws SQLException{
         List<Empleado> lista = new ArrayList();
         
@@ -278,11 +286,11 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
     public int impresionDatosPersonales(List<Empleado> lista) throws SQLException {
         
         int i = 0;
-        super.out.println("Lista de Empleados:\n");
-        super.out.println("Id\tNombre\tApellido\tIdentificacion\tFecha nac.\tFecha contratacion\tTelefono\tCorreo");
+        super.out.println("\rLista de Empleados:\n");
+        super.out.println("\rId\tNombre\tApellido\tIdentificacion\tFecha nac.\tFecha contratacion\tTelefono\tCorreo");
         for(Empleado l : lista){
             i++;
-            super.out.print(l.getId() + "\t");
+            super.out.print("\r" + l.getId() + "\t");
             super.out.print(l.getNombre()+ "\t");
             super.out.print(l.getApellido()+ "\t");
             super.out.print(l.getIdentificacion()+ "\t");
@@ -297,7 +305,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         }
         return i;
     }
-    
+    //Actualización de datos (no salario, ni estado, ni jefe)
     public void actualizarDatosPersonales(Empleado empleado, Connection con, Socket cliente) throws Exception{
         int i;
         String leer;
@@ -343,8 +351,6 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
             
             pre.executeUpdate();
 
-//            lista = puestoDAO.mapeoSeleccionar(rs);
-
             pre.close();
             
             super.out.println("\nEmpleado actualizado correctamente!");
@@ -359,11 +365,11 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
     public int impresionEstadoEmpleado(List<Empleado> lista) throws SQLException {
         
         int i = 0;
-        super.out.println("Lista de Empleados:\n");
-        super.out.println("Id\tNombre\tApellido\tEstado");
+        super.out.println("\rLista de Empleados:\n");
+        super.out.println("\rId\tNombre\tApellido\tEstado");
         for(Empleado l : lista){
             i++;
-            super.out.print(l.getId() + "\t");
+            super.out.print("\r" + l.getId() + "\t");
             super.out.print(l.getNombre()+ "\t");
             super.out.print(l.getApellido()+ "\t");
             
@@ -386,7 +392,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         }
         return i;
     }
-    
+    //Actualización solo del estado (poder despedir un empleado)
     public void actualizarEstadoEmpleado(Empleado empleado, Connection con, Socket cliente) throws Exception{
         int i;
         String leer;
@@ -430,11 +436,11 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
     public int impresionSalarioEmpleado(List<Empleado> lista) throws SQLException {
         
         int i = 0;
-        super.out.println("Lista de Empleados:\n");
-        super.out.println("Id\tNombre\tApellido\tSalario\tDepartamento\tPuesto");
+        super.out.println("\rLista de Empleados:\n");
+        super.out.println("\rId\tNombre\tApellido\tSalario\tDepartamento\tPuesto");
         for(Empleado l : lista){
             i++;
-            super.out.print(l.getId() + "\t");
+            super.out.print("\r" + l.getId() + "\t");
             super.out.print(l.getNombre()+ "\t");
             super.out.print(l.getApellido()+ "\t");
             super.out.print(l.getSalario() + "\t");
@@ -468,7 +474,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         }
         return i;
     }
-    
+    //Actualización solo del salario del empleado
     public void actualizarSalarioEmpleado(Empleado empleado, Connection con, Socket cliente) throws Exception{
         int i;
         String leer;
@@ -508,7 +514,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
                 leer = super.in.readLine();
                 salario = Double.parseDouble(leer);
                 
-            } while (salario<salarioMin || salario>salarioMax);
+            } while (salario<salarioMin || salario>salarioMax || salario <= 0);
             empleado.setSalario(salario);
             
             setConexion(con);
@@ -533,11 +539,11 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
     public int impresionDepartamentoEmpleado(List<Empleado> lista) throws SQLException {
         
         int i = 0;
-        super.out.println("Lista de Empleados:\n");
-        super.out.println("Id\tNombre\tApellido\tDepartamento\tPuesto");
+        super.out.println("\rLista de Empleados:\n");
+        super.out.println("\rId\tNombre\tApellido\tDepartamento\tPuesto");
         for(Empleado l : lista){
             i++;
-            super.out.print(l.getId() + "\t");
+            super.out.print("\r" + l.getId() + "\t");
             super.out.print(l.getNombre()+ "\t");
             super.out.print(l.getApellido()+ "\t");
             
@@ -571,6 +577,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         return i;
     }
     
+    //Actualización solo del departamento y puesto del empleado
     public void actualizarDepartametoEmpleado(Empleado empleado, Connection con, Socket cliente) throws Exception{
         int i;
         String leer;
@@ -640,14 +647,15 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         }
     }
     
+    //Solo imprime a los empleados que son jefes
     public int impresionJefeEmpleado(List<Empleado> lista) throws SQLException, Exception {
         
         int i = 0;
-        super.out.println("Lista de Empleados:\n");
-        super.out.println("Id\tNombre\tApellido\tJefe");
+        super.out.println("\rLista de Empleados:\n");
+        super.out.println("\rId\tNombre\tApellido\tJefe");
         for(Empleado l : lista){
             i++;
-            super.out.print(l.getId() + "\t");
+            super.out.print("\r" + l.getId() + "\t");
             super.out.print(l.getNombre()+ "\t");
             super.out.print(l.getApellido()+ "\t");
             
@@ -666,6 +674,7 @@ public class EmpleadoDAO extends AbstractDAO<Empleado>{
         return i;
     }
     
+    //Actualización solo del jefe del empleado
     public void actualizarJefeEmpleado(Empleado empleado, Connection con, Socket cliente) throws Exception{
         int i;
         int id;

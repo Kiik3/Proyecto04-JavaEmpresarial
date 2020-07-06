@@ -15,6 +15,7 @@ import java.util.List;
  * @author Enrique Ochoa
  */
 public class DescuentoLeyDAO extends AbstractDAO<DescuentoLey>{
+    //Todos son métodos heredados, la descripción de lo que hacen se encuentra en la clase AbstractDAO
     
     @Override
     public String nombreTabla(){
@@ -48,7 +49,8 @@ public class DescuentoLeyDAO extends AbstractDAO<DescuentoLey>{
     public List<DescuentoLey> mapeoSeleccionar(ResultSet rs) throws SQLException{
         
         List<DescuentoLey> lista = new ArrayList();
-
+        
+        //Se recorre el rs para mapear los registros obtenidos
         while(rs.next()){ 
             DescuentoLey descuentoLey = new DescuentoLey();
             
@@ -67,14 +69,15 @@ public class DescuentoLeyDAO extends AbstractDAO<DescuentoLey>{
     public int impresion(List<DescuentoLey> lista) throws SQLException{
         
         int i = 0;
-        super.out.println("Lista de Descuentos de ley:\n");
-        super.out.println("Id\tDescuento\tPorcentaje");
+        super.out.println("\rLista de Descuentos de ley:\n");
+        super.out.println("\rId\tDescuento\tPorcentaje");
         for(DescuentoLey l : lista){
             i++;
-            super.out.print(l.getId()+ "\t");
+            super.out.print("\r" + l.getId()+ "\t");
             super.out.print(l.getNombre()+ "\t");
             super.out.println(l.getPorcentaje()+ "\t");
         }
+        //valida si el query está vacío
         if(i == 0){
             super.out.println("No se encontraron resultados");
         }
@@ -88,12 +91,15 @@ public class DescuentoLeyDAO extends AbstractDAO<DescuentoLey>{
         int i;
         int leerInt;
         String leer;
+        double porcentaje;
         
         switch(opcion){
+            //Listar todos los registros
             case 1:
                 setConexion(con);
                 impresion(seleccionar());
                 break;
+            //Listar todos los registros por id
             case 2:
                 setConexion(con);
                 super.out.print("Ingresa el id: ");
@@ -102,17 +108,23 @@ public class DescuentoLeyDAO extends AbstractDAO<DescuentoLey>{
                 impresion(seleccionar(leerInt));
                 break;
             case 3:
+            //Ingresar un nuevo registro
                 setConexion(con);
                 super.out.print("Ingrese el nombre del descuento de ley: ");
                 descuentoLey.setNombre(super.in.readLine());
                 
-                super.out.print("Ingrese el porcentaje: ");
-                descuentoLey.setPorcentaje(Double.parseDouble(super.in.readLine()));
+                do {                    
+                    super.out.print("Ingrese el porcentaje: ");
+                    porcentaje = Double.parseDouble(super.in.readLine());
+                } while (porcentaje <= 0);
+                
+                descuentoLey.setPorcentaje(porcentaje);
 
                 insertar(descuentoLey);
                 
                 super.out.println("\nDescuento de ley agregado correctamente!");
                 break;
+            //Actualizar un registro
             case 4:
                 setConexion(con);
                 i = impresion(seleccionar());
@@ -124,8 +136,12 @@ public class DescuentoLeyDAO extends AbstractDAO<DescuentoLey>{
                     descuentoLey.setId(leerInt);
                     super.out.print("Ingrese el nuevo nombre del descuento: ");
                     descuentoLey.setNombre(super.in.readLine());
-                    super.out.print("Ingrese el nuevo porcentaje: ");
-                    descuentoLey.setPorcentaje(Double.parseDouble(super.in.readLine()));
+                    do {                    
+                        super.out.print("Ingrese el porcentaje: ");
+                        porcentaje = Double.parseDouble(super.in.readLine());
+                    } while (porcentaje <= 0);
+
+                    descuentoLey.setPorcentaje(porcentaje);
 
                     actualizar(descuentoLey);
 
@@ -139,6 +155,7 @@ public class DescuentoLeyDAO extends AbstractDAO<DescuentoLey>{
                 
                 break;
             case 5:
+                //No se permite eliminar estados porque el 1 y 2 hace referencia a isss y afp respectivamente
                 super.out.println("\nNo se permiten eliminar descuentos de ley!");
                 
                 break;
